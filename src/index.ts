@@ -1,13 +1,94 @@
+/**
+ * Configuration options for the debounce function.
+ */
 export interface DebounceOptions {
+	/**
+	 * If `true`, invokes on the leading edge. Also fires trailing edge if new calls arrive during delay.
+	 *
+	 * @default false
+	 * @example
+	 * ```ts
+	 * const save = debounce(saveFn, { immediate: true, delay: 500 });
+	 * save(); // fires immediately, then 500ms later if called again
+	 * ```
+	 */
 	immediate?: boolean;
+
+	/**
+	 * Milliseconds to wait after the last call before executing.
+	 *
+	 * @default 1000
+	 * @example
+	 * ```ts
+	 * const save = debounce(saveFn, { delay: 300 });
+	 * ```
+	 */
 	delay?: number;
+
+	/**
+	 * Maximum time to wait before forced execution. Must be ≥ `delay`.
+	 *
+	 * @default undefined
+	 * @example
+	 * ```ts
+	 * // Save at least every 5s, even during continuous typing
+	 * const save = debounce(saveFn, { delay: 1000, maxWait: 5000 });
+	 * ```
+	 */
 	maxWait?: number;
+
+	/**
+	 * Error handler for sync errors or async rejections.
+	 *
+	 * @example
+	 * ```ts
+	 * const save = debounce(saveFn, {
+	 *   onError: (err) => console.error('Save failed:', err)
+	 * });
+	 * ```
+	 */
 	onError?: (error: unknown) => void;
 }
 
+/**
+ * A debounced function with control methods.
+ *
+ * @template TArgs - Function argument types
+ */
 export interface DebouncedFunction<TArgs extends readonly unknown[]> {
+	/**
+	 * Calls the debounced function. Execution is delayed per configuration.
+	 *
+	 * @example
+	 * ```ts
+	 * const save = debounce(saveFn, { delay: 500 });
+	 * save(data); // executes 500ms after last call
+	 * ```
+	 */
 	(...args: TArgs): void;
+
+	/**
+	 * Cancels pending invocations. Use for cleanup on unmount.
+	 *
+	 * @example
+	 * ```ts
+	 * const save = debounce(saveFn, { delay: 500 });
+	 * save(data);
+	 * save.cancel(); // Prevents execution
+	 * ```
+	 */
 	cancel(): void;
+
+	/**
+	 * Immediately executes pending invocation, bypassing remaining delay.
+	 *
+	 * @example
+	 * ```ts
+	 * const save = debounce(saveFn, { delay: 1000 });
+	 * save(data);
+	 * save.flush(); // Executes immediately
+	 * ```
+	 */
 	flush(): void;
 }
 
@@ -65,7 +146,6 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 ): DebouncedFunction<TArgs> => {
 	const { immediate = false, delay = 1000, maxWait, onError } = options ?? {};
 
-	// Input validation
 	if (typeof delay !== 'number' || Number.isNaN(delay) || delay < 0) {
 		throw new TypeError('delay must be a non-negative number');
 	}
