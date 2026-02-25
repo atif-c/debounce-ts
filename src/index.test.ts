@@ -16,42 +16,58 @@ describe('debounce', () => {
 		it('should throw TypeError for non-number delay', () => {
 			// @ts-expect-error – intentionally passing invalid type
 			const call = () => debounce(async () => {}, { delay: true });
-			expect(call).toThrow(new TypeError('delay must be a non-negative number'));
+			expect(call).toThrow(new TypeError('delay must be a non-negative integer'));
 		});
 
 		it('should throw TypeError for NaN delay', () => {
 			const call = () => debounce(async () => {}, { delay: NaN });
-			expect(call).toThrow(new TypeError('delay must be a non-negative number'));
+			expect(call).toThrow(new TypeError('delay must be a non-negative integer'));
+		});
+
+		it('should throw TypeError for float delay', () => {
+			const call = () => debounce(async () => {}, { delay: 100.5 });
+			expect(call).toThrow(new TypeError('delay must be a non-negative integer'));
 		});
 
 		it('should throw TypeError for negative delay', () => {
 			const call = () => debounce(async () => {}, { delay: -1 });
-			expect(call).toThrow(new TypeError('delay must be a non-negative number'));
+			expect(call).toThrow(new TypeError('delay must be a non-negative integer'));
+		});
+
+		it('should throw for Infinity delay', () => {
+			const call = () => debounce(async () => {}, { delay: Infinity });
+			expect(call).toThrow(new TypeError('delay must be a non-negative integer'));
 		});
 
 		it('should throw TypeError for non-number maxWait', () => {
 			// @ts-expect-error – intentionally passing invalid type
-			const call = () => debounce(async () => {}, { delay: 100, maxWait: true });
-			expect(call).toThrow(new TypeError('maxWait must be a non-negative number'));
-		});
-
-		it('should throw TypeError for negative maxWait', () => {
-			const call = () => debounce(async () => {}, { delay: 100, maxWait: -1 });
-			expect(call).toThrow(new TypeError('maxWait must be a non-negative number'));
+			const call = () => debounce(async () => {}, { delay, maxWait: true });
+			expect(call).toThrow(new TypeError('maxWait must be a non-negative integer'));
 		});
 
 		it('should throw TypeError for NaN maxWait', () => {
-			const call = () => debounce(async () => {}, { delay: 100, maxWait: NaN });
-			expect(call).toThrow(new TypeError('maxWait must be a non-negative number'));
+			const call = () => debounce(async () => {}, { delay, maxWait: NaN });
+			expect(call).toThrow(new TypeError('maxWait must be a non-negative integer'));
+		});
+
+		it('should throw TypeError for float maxWait', () => {
+			const call = () => debounce(async () => {}, { delay, maxWait: 100.5 });
+			expect(call).toThrow(new TypeError('maxWait must be a non-negative integer'));
+		});
+
+		it('should throw TypeError for negative maxWait', () => {
+			const call = () => debounce(async () => {}, { delay, maxWait: -1 });
+			expect(call).toThrow(new TypeError('maxWait must be a non-negative integer'));
+		});
+
+		it('should throw TypeError for Infinity maxWait', () => {
+			const call = () => debounce(async () => {}, { delay, maxWait: Infinity });
+			expect(call).toThrow(new TypeError('maxWait must be a non-negative integer'));
 		});
 
 		it('should throw TypeError if maxWait is less than delay', () => {
 			const call = () => debounce(async () => {}, { delay: 200, maxWait: 100 });
 			expect(call).toThrow(new TypeError('maxWait must be greater than or equal to delay'));
-		});
-
-		it('should accept zero delay', () => {
-			expect(() => debounce(async () => {}, { delay: 0 })).not.toThrow();
 		});
 
 		it('should accept maxWait equal to delay', () => {

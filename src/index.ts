@@ -15,7 +15,7 @@ export interface DebounceOptions {
 	immediate?: boolean;
 
 	/**
-	 * Milliseconds to wait after the last call before executing.
+	 * Milliseconds to wait after the last call before executing. Must be an integer.
 	 *
 	 * @default 1000
 	 * @example
@@ -26,7 +26,7 @@ export interface DebounceOptions {
 	delay?: number;
 
 	/**
-	 * Maximum time to wait before forced execution. Must be ≥ `delay`.
+	 * Maximum time to wait before forced execution. Must be ≥ `delay` and an integer.
 	 *
 	 * @default undefined
 	 * @example
@@ -105,15 +105,15 @@ export interface DebouncedFunction<TArgs extends readonly unknown[]> {
  * @param {DebounceOptions} [options] - Configuration options
  * @param {boolean} [options.immediate=false] - Fire on leading edge. Also fires
  *   trailing if new args arrive during cooldown.
- * @param {number} [options.delay=1000] - Delay in ms after last call
- * @param {number} [options.maxWait] - Max time in ms before forced execution
+ * @param {number} [options.delay=1000] - Delay in ms after last call as an integer
+ * @param {number} [options.maxWait] - Max time in ms before forced execution as an integer
  * @param {Function} [options.onError] - Error handler for async rejections.
  *   Without this, errors surface as unhandled rejections.
  * @returns {DebouncedFunction} Debounced function (void return) with
  *   cancel() and flush() methods
  *
- * @throws {TypeError} If delay is not a non-negative number
- * @throws {TypeError} If maxWait is not a non-negative number
+ * @throws {TypeError} If delay is not a non-negative integer
+ * @throws {TypeError} If maxWait is not a non-negative integer
  * @throws {TypeError} If maxWait < delay
  *
  * @example
@@ -146,12 +146,17 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 ): DebouncedFunction<TArgs> => {
 	const { immediate = false, delay = 1000, maxWait, onError } = options ?? {};
 
-	if (typeof delay !== 'number' || Number.isNaN(delay) || delay < 0) {
-		throw new TypeError('delay must be a non-negative number');
+	if (typeof delay !== 'number' || Number.isNaN(delay) || !Number.isInteger(delay) || delay < 0) {
+		throw new TypeError('delay must be a non-negative integer');
 	}
 	if (maxWait !== undefined) {
-		if (typeof maxWait !== 'number' || Number.isNaN(maxWait) || maxWait < 0) {
-			throw new TypeError('maxWait must be a non-negative number');
+		if (
+			typeof maxWait !== 'number' ||
+			Number.isNaN(maxWait) ||
+			!Number.isInteger(maxWait) ||
+			maxWait < 0
+		) {
+			throw new TypeError('maxWait must be a non-negative integer');
 		}
 		if (maxWait < delay) {
 			throw new TypeError('maxWait must be greater than or equal to delay');
