@@ -76,6 +76,18 @@ describe('debounce', () => {
 	});
 
 	describe('basic behaviour', () => {
+		it('should work without options', async () => {
+			const mockFn = vi.fn(async (_arg: string) => {});
+			const debounced = debounce(mockFn);
+
+			debounced('first');
+			expect(mockFn).not.toHaveBeenCalled();
+
+			await vi.advanceTimersByTimeAsync(1000);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1, 'first');
+		});
+
 		it('should call function once after delay', async () => {
 			const mockFn = vi.fn(async (_arg: string) => {});
 			const debounced = debounce(mockFn, { delay });
@@ -527,6 +539,22 @@ describe('debounce', () => {
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
 			// No crash - unhandled rejection is the expected behavior
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+		});
+
+		it('should handle sync function errors without onError (unhandled rejection)', async () => {
+			const mockFn = vi.fn(() => {
+				throw new Error('sync error');
+			});
+			const debounced = debounce(mockFn, { delay });
+
+			debounced();
+			expect(mockFn).not.toHaveBeenCalled();
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
