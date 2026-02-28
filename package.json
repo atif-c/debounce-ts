@@ -1,6 +1,6 @@
 {
 	"name": "debounce-ts",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Small and fast typescript debounce utility library",
 	"author": "Atif C <atifcdev@gmail.com>",
 	"license": "MIT",
