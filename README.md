@@ -1,4 +1,7 @@
 # debounce-ts
+[![GitHub Repo](https://img.shields.io/badge/GitHub-debounce--ts-black?style=for-the-badge&logo=github)](https://github.com/atif-c/debounce-ts)
+[![npm Package](https://img.shields.io/badge/npm-debounce--ts-red?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/debounce-ts)
+
 
 A small TypeScript debounce utility for both sync and async functions. Supports leading-edge execution, maximum wait enforcement, and error handling.
 
