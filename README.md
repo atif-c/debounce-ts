@@ -14,6 +14,8 @@ A small TypeScript debounce utility for both sync and async functions. Supports 
 - `.cancel()` and `.flush()` methods on the returned function
 - Zero dependencies, fully typed
 
+[Debounce Example](https://atif-c.github.io/debounce-ts/demo)
+
 ## Installation
 
 ```bash

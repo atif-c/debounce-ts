@@ -1,360 +1,391 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Debounce Function Demo</title>
-		<style>
-			:root {
-				/* Light theme */
-				--clr-light: rgb(255, 255, 255);
-				--clr-light-surface: rgb(220, 220, 220);
-				--clr-light-alt-surface: rgb(210, 210, 210);
 
-				/* Dark theme */
-				--clr-dark: rgb(0, 0, 0);
-				--clr-dark-surface: rgb(35, 35, 35);
-				--clr-dark-alt-surface: rgb(45, 45, 45);
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Debounce Function Demo</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@atifc/css/dist/root.css" />
+	<style>
+		:root {
+			--theme-accent-hue: 260;
+		}
 
-				/* Unified neumorphic shadows */
-				--clr-shadow-light: rgba(255, 255, 255, 0.05);
-				--clr-shadow-dark: rgba(0, 0, 0, 0.5);
+		body {
+			background: var(--surface-1);
+			padding: var(--space-xl);
 
-				/* General UI */
-				--clr-selected: rgb(150, 150, 255);
-				--clr-positive: rgb(150, 255, 150);
-				--clr-negative: rgb(255, 150, 150);
-				--clr-border: rgb(100, 100, 100);
-				--clr-muted: rgb(140, 140, 140);
+			font-family: var(--font-sans);
+			line-height: var(--leading-normal);
+			color: var(--text-primary);
 
-				/* Shadows */
-				--shadow-sm:
-					-2px 0px 3px var(--clr-shadow-light), 0px -2px 3px var(--clr-shadow-light),
-					-2px -2px 3px var(--clr-shadow-light), 2px 0px 3px var(--clr-shadow-dark),
-					0px 2px 3px var(--clr-shadow-dark), 2px 2px 3px var(--clr-shadow-dark);
-
-				--shadow-md:
-					-4px 0px 6px var(--clr-shadow-light), 0px -4px 6px var(--clr-shadow-light),
-					-4px -4px 6px var(--clr-shadow-light), 4px 0px 6px var(--clr-shadow-dark),
-					0px 4px 6px var(--clr-shadow-dark), 4px 4px 6px var(--clr-shadow-dark);
-
-				--shadow-lg:
-					-8px 0px 12px var(--clr-shadow-light), 0px -8px 12px var(--clr-shadow-light),
-					-8px -8px 12px var(--clr-shadow-light), 8px 0px 12px var(--clr-shadow-dark),
-					0px 8px 12px var(--clr-shadow-dark), 8px 8px 12px var(--clr-shadow-dark);
-
-				--shadow-xlg:
-					-16px 0px 24px var(--clr-shadow-light), 0px -16px 24px var(--clr-shadow-light),
-					-16px -16px 24px var(--clr-shadow-light), 16px 0px 24px var(--clr-shadow-dark),
-					0px 16px 24px var(--clr-shadow-dark), 16px 16px 24px var(--clr-shadow-dark);
-
-				--shadow-sm-inset:
-					inset -2px 0px 3px var(--clr-shadow-light), inset 0px -2px 3px var(--clr-shadow-light),
-					inset -2px -2px 3px var(--clr-shadow-light), inset 2px 0px 3px var(--clr-shadow-dark),
-					inset 0px 2px 3px var(--clr-shadow-dark), inset 2px 2px 3px var(--clr-shadow-dark);
-
-				--shadow-md-inset:
-					inset -4px 0px 6px var(--clr-shadow-light), inset 0px -4px 6px var(--clr-shadow-light),
-					inset -4px -4px 6px var(--clr-shadow-light), inset 4px 0px 6px var(--clr-shadow-dark),
-					inset 0px 4px 6px var(--clr-shadow-dark), inset 4px 4px 6px var(--clr-shadow-dark);
-
-				--shadow-lg-inset:
-					inset -8px 0px 12px var(--clr-shadow-light), inset 0px -8px 12px var(--clr-shadow-light),
-					inset -8px -8px 12px var(--clr-shadow-light), inset 8px 0px 12px var(--clr-shadow-dark),
-					inset 0px 8px 12px var(--clr-shadow-dark), inset 8px 8px 12px var(--clr-shadow-dark);
-			}
-
-			body {
-				font-family: monospace;
-				background: var(--clr-dark-surface);
-				min-height: 100vh;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-			}
-
-			*,
-			*::before,
-			*::after {
-				box-sizing: border-box;
-				margin: 0;
-				padding: 0;
-				color: var(--clr-light);
+			@media (max-width: 48rem) {
+				padding: var(--space-md);
 			}
 
 			.container {
-				min-width: 40rem;
-				width: 65vw;
-				background-color: transparent;
-				box-shadow: var(--shadow-xlg);
-				border-radius: 1rem;
-				padding: 2rem;
+				max-width: var(--container-fluid-xl);
+				margin: auto;
 
-				.header {
+				@media (min-width: 48rem) {
+					min-width: var(--container-sm);
+				}
+
+				header {
+					display: flex;
+					justify-content: space-between;
+					flex-wrap: wrap;
+					gap: var(--space-lg);
+
+					margin-bottom: var(--space-2xl);
+					border-bottom: var(--border-width) solid var(--border-default);
+
 					h1 {
-						margin-bottom: 1rem;
+						margin-bottom: var(--space-sm);
+
+						font-size: var(--text-xl);
+						font-weight: var(--font-bold);
 					}
 
 					.subtitle {
-						margin-bottom: 1rem;
+						margin-bottom: var(--space-sm);
+
+						font-size: var(--text-sm);
+						color: var(--text-secondary);
 					}
 
 					.header-links {
-						margin-bottom: 1rem;
+						display: flex;
+						align-items: center;
+						gap: var(--space-sm);
+
+						a {
+							img {
+								display: block;
+
+								height: var(--text-lg);
+							}
+						}
+					}
+				}
+
+				.grid-layout {
+					display: grid;
+					grid-template-columns: 1fr 1fr;
+					gap: var(--space-xl);
+
+					@media (max-width: 64rem) {
+						grid-template-columns: 1fr;
 					}
 				}
 
 				.section {
-					margin-top: 2rem;
-					box-shadow: var(--shadow-lg);
-					border-radius: 0.75rem;
-					padding: 2rem;
+					border: var(--border-width) solid var(--border-default);
+					border-radius: var(--radius-lg);
+					background: var(--surface-2);
+					padding: var(--space-xl);
+					display: flex;
+					flex-direction: column;
+
+					@media (max-width: 48rem) {
+						padding: var(--space-lg);
+					}
 
 					.section-title {
-						display: flex;
-						align-items: center;
+						margin-bottom: var(--space-lg);
 
-						&::before {
-							width: 0.25rem;
-							height: 1rem;
-							margin-right: 0.75rem;
-							border-radius: 1rem;
-							background: var(--clr-selected);
-							content: '';
-						}
+						font-size: var(--text-md);
+						font-weight: var(--font-semibold);
 					}
 
 					.info-box {
-						margin-top: 0.5rem;
+						margin-bottom: var(--space-lg);
+						border: var(--border-width) solid var(--accent);
+						border-radius: var(--radius-md);
+						background: var(--accent-alpha);
+						padding: var(--space-md);
+
+						font-size: var(--text-sm);
+						color: var(--text-secondary);
 					}
 
 					.controls {
 						display: flex;
-						justify-content: space-between;
-						align-items: center;
-						gap: 1rem;
-
-						margin-top: 1rem;
+						flex-wrap: wrap;
+						gap: var(--space-lg);
+						align-items: flex-start;
 
 						.control-group {
 							display: flex;
 							flex-direction: column;
-							align-items: center;
-							justify-content: space-evenly;
+							gap: var(--space-sm);
+							flex: 1 1 auto;
+							min-width: 7rem;
 
-							input {
-								margin-top: 0.5rem;
+							label {
+								font-size: var(--text-sm);
+								font-weight: var(--font-medium);
+								color: var(--text-secondary);
+							}
 
-								&[type='text'] {
-									margin-top: 0.5rem;
-									box-shadow: var(--shadow-md-inset);
-									border-radius: 0.5rem;
-									border: transparent;
-									padding: 0.5rem 1rem;
-									background-color: transparent;
-									color: var(--color-text-white);
-									text-align: center;
+							input[type='text'] {
+								border: var(--border-width) solid var(--border-default);
+								border-radius: var(--radius-md);
+								background: var(--surface-1);
+								padding: var(--space-sm) var(--space-md);
+								width: 100%;
 
-									&:focus {
-										outline: 0.1rem solid var(--clr-selected);
-									}
+								font-size: var(--text-base);
+								color: var(--text-primary);
+								transition: var(--transition-colors);
+
+								&:focus {
+									outline: none;
+									border-color: var(--accent);
+									box-shadow: 0 0 0 var(--focus-ring-offset) var(--accent-alpha);
+								}
+							}
+
+							input[type='checkbox'] {
+								appearance: none;
+								width: var(--text-lg);
+								height: var(--text-lg);
+								cursor: pointer;
+								border: var(--border-width) solid var(--border-default);
+								border-radius: var(--radius-md);
+								background: var(--surface-1);
+								transition: var(--transition-colors);
+
+								&:checked {
+									border-color: var(--accent);
+									background: var(--accent);
+									background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.5 5l2.5 2.5 4.5-4.5' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+									background-repeat: no-repeat;
+									background-position: center;
+									background-size: 65%;
 								}
 
-								&[type='checkbox'] {
-									cursor: pointer;
-									width: 1rem;
-									height: 1rem;
-									accent-color: var(--color-primary);
+								&:focus {
+									box-shadow: 0 0 0 var(--focus-ring-offset) var(--accent-alpha);
+									outline: none;
+									border-color: var(--accent);
 								}
 							}
 						}
 					}
 
 					.input-group {
-						margin-top: 1rem;
+						margin-bottom: var(--space-lg);
 
 						label {
 							display: block;
+
+							margin-bottom: var(--space-sm);
+							font-size: var(--text-sm);
+							font-weight: var(--font-medium);
+							color: var(--text-secondary);
 						}
 
 						textarea {
+							resize: vertical;
 							width: 100%;
-							margin-top: 0.5rem;
-							box-shadow: var(--shadow-md-inset);
-							border-radius: 0.5rem;
-							border: transparent;
-							padding: 1rem;
-							font-family: inherit;
-							background: var(--color-bg-input);
-							color: var(--color-text-white);
+							min-height: var(--space-4xl);
+							border: var(--border-width) solid var(--border-default);
+							border-radius: var(--radius-md);
+							background: var(--surface-1);
+							padding: var(--space-md);
+							font-size: var(--text-base);
+							color: var(--text-primary);
+							transition: var(--transition-colors);
 
 							&:focus {
-								outline: 0.1rem solid var(--clr-selected);
-							}
-
-							&::placeholder {
-								color: var(--color-text-muted);
+								outline: none;
+								border-color: var(--accent);
+								box-shadow: 0 0 0 var(--focus-ring-offset) var(--accent-alpha);
 							}
 						}
 					}
 
 					.button-group {
 						display: flex;
-						gap: 1rem;
-						margin-top: 1rem;
+						flex-wrap: wrap;
+						gap: var(--space-md);
 
-						button {
+						.btn {
 							cursor: pointer;
-							height: fit-content;
-							width: fit-content;
-							box-shadow: var(--shadow-md);
-							border: none;
-							border-radius: 0.25rem;
-							background-color: transparent;
-							padding: 0.5rem 1rem;
+							border: var(--border-width) solid transparent;
+							border-radius: var(--radius-md);
+							padding: var(--space-sm) var(--space-lg);
+							font-size: var(--text-sm);
+							font-weight: var(--font-medium);
+							transition: var(--transition);
+						}
 
-							&.btn-primary {
-								color: var(--clr-selected);
+						.btn-primary {
+							background: var(--accent);
+
+							color: oklch(100% 0 0);
+
+							&:hover {
+								background: var(--accent-hover);
 							}
+						}
 
-							&.btn-secondary {
-								color: var(--clr-negative);
+						.btn-secondary {
+							background: var(--surface-3);
+							border-color: var(--border-default);
+
+							color: var(--text-primary);
+
+							&:hover {
+								background: var(--surface-4);
 							}
 						}
 					}
 
 					.stats {
-						display: flex;
-						justify-content: space-around;
-						margin-top: 1rem;
+						display: grid;
+						grid-template-columns: repeat(3, 1fr);
+						gap: var(--space-lg);
+
+						@media (max-width: 48rem) {
+							grid-template-columns: repeat(2, 1fr);
+						}
+
+						@media (max-width: 32rem) {
+							grid-template-columns: 1fr;
+						}
 
 						.stat-card {
-							display: flex;
-							gap: 0.25rem;
-							flex-direction: column;
-							align-items: center;
+							background: var(--surface-1);
+							border: var(--border-width) solid var(--border-default);
+							border-radius: var(--radius-md);
+							padding: var(--space-lg);
 
-							box-shadow: var(--shadow-md);
-							border: none;
-							border-radius: 0.25rem;
-							background-color: transparent;
-							padding: 0.5rem 1rem;
-							transition: all 0.5s ease;
-
-							&:hover {
-								transform: translateY(-0.25rem);
-							}
+							text-align: center;
 
 							.stat-value {
-								font-size: 1.5rem;
+								margin-bottom: var(--space-xs);
+
+								font-size: var(--text-xl);
+								font-weight: var(--font-bold);
+								color: var(--accent);
 							}
 
 							.stat-label {
-								opacity: 50%;
+								font-size: var(--text-sm);
+								color: var(--text-secondary);
+							}
+						}
+					}
+
+					.log-container {
+						border: var(--border-width) solid var(--border-default);
+						border-radius: var(--radius-md);
+						background: var(--surface-1);
+						overflow: hidden;
+
+						.log-header {
+							display: flex;
+							justify-content: space-between;
+
+							border-bottom: var(--border-width) solid var(--border-default);
+							background: var(--surface-3);
+							padding: var(--space-md);
+
+							.log-count {
+								font-size: var(--text-sm);
+								color: var(--text-secondary);
+							}
+
+							.clear-btn {
+								cursor: pointer;
+								border: var(--border-width) solid var(--border-default);
+								border-radius: var(--radius-sm);
+								background: var(--surface-4);
+								padding: var(--space-xs) var(--space-md);
+								font-size: var(--text-xs);
+								color: var(--text-secondary);
+								transition: var(--transition);
+
+								&:hover {
+									background: var(--surface-5);
+
+									color: var(--text-primary);
+								}
+							}
+						}
+
+						.log-entries {
+							padding: var(--space-md);
+							max-height: 18rem;
+							overflow-y: auto;
+
+							.log-empty {
+								padding: var(--space-xl);
+
+								font-size: var(--text-sm);
+								text-align: center;
+								color: var(--text-tertiary);
+							}
+
+							.log-entry {
+								display: flex;
+								justify-content: space-between;
+								align-items: center;
+								gap: var(--space-md);
+
+								margin-bottom: var(--space-sm);
+								border-radius: var(--radius-sm);
+								background: var(--surface-2);
+								padding: var(--space-sm) var(--space-md);
+
+								.log-time {
+									font-family: var(--font-mono);
+									font-size: var(--text-xs);
+									color: var(--text-tertiary);
+								}
+
+								.log-value {
+									font-family: var(--font-mono);
+									font-size: var(--text-sm);
+									text-align: right;
+									word-break: break-all;
+								}
+
+								&:last-child {
+									margin-bottom: 0;
+								}
 							}
 						}
 					}
 				}
 			}
+		}
+	</style>
+</head>
 
-			.log-container {
-				.log-header {
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-					margin-top: 1rem;
-
-					button {
-						cursor: pointer;
-						height: fit-content;
-						width: fit-content;
-						box-shadow: var(--shadow-md);
-						border: none;
-						border-radius: 0.25rem;
-						background-color: transparent;
-						padding: 0.5rem 1rem;
-						color: var(--clr-negative);
-					}
-				}
-
-				.log-empty {
-					padding: 2rem;
-					text-align: center;
-					color: var(--clr-muted);
-					font-style: italic;
-				}
-
-				.log-entries {
-					display: flex;
-					flex-direction: column;
-					gap: 1rem;
-
-					.log-entry {
-						&:first-child {
-							margin-top: 1rem;
-						}
-
-						background: transparent;
-						padding: 1rem;
-						border-radius: 0.25rem;
-						animation: slideIn 0.3s ease-out;
-						box-shadow: var(--shadow-lg);
-					}
-
-					.log-time {
-						color: var(--clr-muted);
-					}
-
-					.log-value {
-						color: var(--clr-light);
-						margin-top: 0.5rem;
-						word-break: break-word;
-					}
-				}
-			}
-
-			@keyframes slideIn {
-				from {
-					opacity: 0;
-					transform: translateX(-20px);
-				}
-
-				to {
-					opacity: 1;
-					transform: translateX(0);
-				}
-			}
-		</style>
-	</head>
-
-	<body>
-		<div class="container">
-			<div class="header">
-				<div>
-					<h1>Debounce Function Demo</h1>
-					<p class="subtitle">
-						Type in the text area and watch the debounced function calls in real-time
-					</p>
-				</div>
-				<div class="header-links">
-					<a href="https://github.com/atif-c/debounce-ts" target="_blank" rel="noopener noreferrer">
-						<img
-							src="https://img.shields.io/badge/GitHub-atif--c%2Fdebounce-blue?logo=github"
-							alt="View on GitHub"
-					/></a>
-					<a
-						href="https://www.npmjs.com/package/debounce-ts"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<img
-							src="https://img.shields.io/npm/v/atif-c-debounce?logo=npm&label=NPM"
-							alt="View on NPM"
-						/>
-					</a>
-				</div>
+<body>
+	<div class="container">
+		<header>
+			<div>
+				<h1>Debounce Function Demo</h1>
+				<p class="subtitle">
+					Type in the text area and watch the debounced function calls in real-time
+				</p>
 			</div>
+			<div class="header-links">
+				<a href="https://github.com/atif-c/debounce-ts" target="_blank" rel="noopener noreferrer">
+					<img src="https://img.shields.io/badge/GitHub-debounce--ts-blue?&logo=github"
+						alt="View on GitHub" />
+				</a>
+				<a href="https://npmjs.com/package/debounce-ts" target="_blank" rel="noopener noreferrer">
+					<img src="https://img.shields.io/npm/v/debounce-ts?logo=npm" alt="View on NPM" />
+				</a>
+			</div>
+		</header>
 
+		<div class="grid-layout">
 			<div class="section">
 				<h2 class="section-title">Configuration</h2>
 				<div class="info-box">
@@ -367,21 +398,12 @@
 					</div>
 					<div class="control-group">
 						<label>Max Wait (ms)</label>
-						<input
-							type="text"
-							inputmode="numeric"
-							id="maxWait"
-							value="1000"
-							min="0"
-							step="100"
-							placeholder="None"
-						/>
+						<input type="text" inputmode="numeric" id="maxWait" value="1000" min="0" step="100"
+							placeholder="None" />
 					</div>
 					<div class="control-group">
-						<label class="checkbox-label">
-							<input type="checkbox" id="immediate" />
-							<span>Immediate (Leading Edge)</span>
-						</label>
+						<label>Immediate</label>
+						<input type="checkbox" id="immediate" />
 					</div>
 				</div>
 			</div>
@@ -429,131 +451,133 @@
 				</div>
 			</div>
 		</div>
+	</div>
 
-		<script type="module">
-			import { debounce } from './dist/index.js';
+	<script type="module">
+		import { debounce } from 'https://cdn.jsdelivr.net/npm/debounce-ts/dist/index.js';
 
-			// State
-			let totalCalls = 0;
-			let debouncedCalls = 0;
-			let currentDebounced = null;
+		// State
+		let totalCalls = 0;
+		let debouncedCalls = 0;
+		let currentDebounced = null;
 
-			// Elements
-			const textInput = document.getElementById('textInput');
-			const delayInput = document.getElementById('delay');
-			const maxWaitInput = document.getElementById('maxWait');
-			const immediateInput = document.getElementById('immediate');
-			const logEntries = document.getElementById('logEntries');
-			const logCount = document.getElementById('logCount');
-			const totalCallsEl = document.getElementById('totalCalls');
-			const debouncedCallsEl = document.getElementById('debouncedCalls');
-			const savedCallsEl = document.getElementById('savedCalls');
-			const flushBtn = document.getElementById('flushBtn');
-			const cancelBtn = document.getElementById('cancelBtn');
-			const clearLogBtn = document.getElementById('clearLog');
+		// Elements
+		const textInput = document.getElementById('textInput');
+		const delayInput = document.getElementById('delay');
+		const maxWaitInput = document.getElementById('maxWait');
+		const immediateInput = document.getElementById('immediate');
+		const logEntries = document.getElementById('logEntries');
+		const logCount = document.getElementById('logCount');
+		const totalCallsEl = document.getElementById('totalCalls');
+		const debouncedCallsEl = document.getElementById('debouncedCalls');
+		const savedCallsEl = document.getElementById('savedCalls');
+		const flushBtn = document.getElementById('flushBtn');
+		const cancelBtn = document.getElementById('cancelBtn');
+		const clearLogBtn = document.getElementById('clearLog');
 
-			// Log function call
-			function logCall(value, type = 'normal') {
-				debouncedCalls++;
-				debouncedCallsEl.textContent = debouncedCalls;
-				savedCallsEl.textContent = totalCalls - debouncedCalls;
+		// Log function call
+		function logCall(value, type = 'normal') {
+			debouncedCalls++;
+			debouncedCallsEl.textContent = debouncedCalls;
+			savedCallsEl.textContent = totalCalls - debouncedCalls;
 
-				const empty = logEntries.querySelector('.log-empty');
-				if (empty) {
-					empty.remove();
-				}
+			const empty = logEntries.querySelector('.log-empty');
+			if (empty) {
+				empty.remove();
+			}
 
-				const entry = document.createElement('div');
-				entry.className = 'log-entry';
+			const entry = document.createElement('div');
+			entry.className = 'log-entry';
 
-				const now = new Date();
-				const timeString = now.toLocaleTimeString('en-US', {
-					hour12: false,
-					hour: '2-digit',
-					minute: '2-digit',
-					second: '2-digit',
-					fractionalSecondDigits: 3
-				});
+			const now = new Date();
+			const timeString = now.toLocaleTimeString('en-US', {
+				hour12: false,
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit',
+				fractionalSecondDigits: 3
+			});
 
-				entry.innerHTML = `
+			entry.innerHTML = `
                 <div class="log-time">${timeString} ${type === 'flush' ? '(FLUSHED)' : type === 'leading' ? '(LEADING)' : '(TRAILING)'}</div>
                 <div class="log-value">${value || '<empty>'}</div>
             `;
 
-				logEntries.insertBefore(entry, logEntries.firstChild);
-				logCount.textContent = debouncedCalls;
-			}
+			logEntries.insertBefore(entry, logEntries.firstChild);
+			logCount.textContent = debouncedCalls;
+		}
 
-			// Create debounced function
-			function createDebouncedFunction() {
-				const delay = parseInt(delayInput.value) || 1000;
-				const maxWait = maxWaitInput.value ? parseInt(maxWaitInput.value) : undefined;
-				const immediate = immediateInput.checked;
+		// Create debounced function
+		function createDebouncedFunction() {
+			const delay = parseInt(delayInput.value) || 1000;
+			const maxWait = maxWaitInput.value ? parseInt(maxWaitInput.value) : undefined;
+			const immediate = immediateInput.checked;
 
-				return debounce(
-					value => {
-						logCall(value, immediate && totalCalls === 1 ? 'leading' : 'normal');
-					},
-					{
-						delay,
-						maxWait,
-						immediate,
-						onError: error => {
-							console.error('Debounce error:', error);
-						}
+			return debounce(
+				value => {
+					logCall(value, immediate && totalCalls === 1 ? 'leading' : 'normal');
+				},
+				{
+					delay,
+					maxWait,
+					immediate,
+					onError: error => {
+						console.error('Debounce error:', error);
 					}
-				);
-			}
+				}
+			);
+		}
 
-			// Initialize debounced function
+		// Initialize debounced function
+		currentDebounced = createDebouncedFunction();
+
+		// Handle text input
+		textInput.addEventListener('input', e => {
+			totalCalls++;
+			totalCallsEl.textContent = totalCalls;
+			savedCallsEl.textContent = totalCalls - debouncedCalls;
+			currentDebounced(e.target.value);
+		});
+
+		// Handle configuration changes - recreate debounced function
+		function handleConfigChange() {
+			// Cancel previous debounced function
+			if (currentDebounced) {
+				currentDebounced.cancel();
+			}
+			// Create new debounced function with new settings
 			currentDebounced = createDebouncedFunction();
+		}
 
-			// Handle text input
-			textInput.addEventListener('input', e => {
-				totalCalls++;
-				totalCallsEl.textContent = totalCalls;
-				savedCallsEl.textContent = totalCalls - debouncedCalls;
-				currentDebounced(e.target.value);
-			});
+		delayInput.addEventListener('change', handleConfigChange);
+		maxWaitInput.addEventListener('change', handleConfigChange);
+		immediateInput.addEventListener('change', handleConfigChange);
 
-			// Handle configuration changes - recreate debounced function
-			function handleConfigChange() {
-				// Cancel previous debounced function
-				if (currentDebounced) {
-					currentDebounced.cancel();
-				}
-				// Create new debounced function with new settings
-				currentDebounced = createDebouncedFunction();
+		// Flush button
+		flushBtn.addEventListener('click', () => {
+			if (currentDebounced) {
+				currentDebounced.flush();
 			}
+		});
 
-			delayInput.addEventListener('change', handleConfigChange);
-			maxWaitInput.addEventListener('change', handleConfigChange);
-			immediateInput.addEventListener('change', handleConfigChange);
+		// Cancel button
+		cancelBtn.addEventListener('click', () => {
+			if (currentDebounced) {
+				currentDebounced.cancel();
+			}
+		});
 
-			// Flush button
-			flushBtn.addEventListener('click', () => {
-				if (currentDebounced) {
-					currentDebounced.flush();
-				}
-			});
+		// Clear log button
+		clearLogBtn.addEventListener('click', () => {
+			logEntries.innerHTML = '<div class="log-empty">No function calls yet. Start typing!</div>';
+			logCount.textContent = '0';
+			debouncedCalls = 0;
+			totalCalls = 0;
+			debouncedCallsEl.textContent = '0';
+			totalCallsEl.textContent = '0';
+			savedCallsEl.textContent = '0';
+		});
+	</script>
+</body>
 
-			// Cancel button
-			cancelBtn.addEventListener('click', () => {
-				if (currentDebounced) {
-					currentDebounced.cancel();
-				}
-			});
-
-			// Clear log button
-			clearLogBtn.addEventListener('click', () => {
-				logEntries.innerHTML = '<div class="log-empty">No function calls yet. Start typing!</div>';
-				logCount.textContent = '0';
-				debouncedCalls = 0;
-				totalCalls = 0;
-				debouncedCallsEl.textContent = '0';
-				totalCallsEl.textContent = '0';
-				savedCallsEl.textContent = '0';
-			});
-		</script>
-	</body>
 </html>
