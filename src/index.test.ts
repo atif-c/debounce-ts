@@ -1,11 +1,16 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { debounce } from './index.js';
 
-describe('debounce', () => {
+describe('debounce-ts', () => {
 	const delay = 100;
 
 	beforeEach(() => {
 		vi.useFakeTimers();
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+		vi.useRealTimers();
 	});
 
 	describe('input validation', () => {
@@ -77,7 +82,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn);
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(1000);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -89,7 +94,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -106,11 +111,11 @@ describe('debounce', () => {
 
 			debounced('first');
 			await vi.advanceTimersByTimeAsync(delay / 2);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('second');
 			await vi.advanceTimersByTimeAsync(delay / 2);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -126,13 +131,13 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('second');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('third');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -312,16 +317,16 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay, maxWait: 200 });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(90);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('second');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(90);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('third');
 			await vi.advanceTimersByTimeAsync(90);
@@ -365,11 +370,11 @@ describe('debounce', () => {
 
 			debounced('first');
 			await vi.advanceTimersByTimeAsync(90);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('second');
 			await vi.advanceTimersByTimeAsync(90);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('third');
 			await vi.advanceTimersByTimeAsync(90);
@@ -395,7 +400,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay: delay, maxWait: 150 });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(75);
 			debounced('second');
@@ -414,17 +419,17 @@ describe('debounce', () => {
 
 			// First interval
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(90);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('second');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 			await vi.advanceTimersByTimeAsync(90);
 
 			debounced('third');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 			await vi.advanceTimersByTimeAsync(90);
 			expect(mockFn).toHaveBeenCalledTimes(1);
 			expect(mockFn).toHaveBeenNthCalledWith(1, 'third');
@@ -455,7 +460,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay, maxWait: 1000 });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -518,11 +523,11 @@ describe('debounce', () => {
 			debounced();
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
-			expect(onError).not.toHaveBeenCalled();
+			expect(onError).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
-			expect(onError).not.toHaveBeenCalled();
+			expect(onError).toHaveBeenCalledTimes(0);
 		});
 
 		it('should handle errors without onError (unhandled rejection)', async () => {
@@ -547,7 +552,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced();
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -563,7 +568,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -579,18 +584,18 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay / 2);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('second');
 			debounced.cancel();
 			await vi.advanceTimersByTimeAsync(delay);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 		});
 
 		it('should not fire stale timer after flush', async () => {
@@ -598,7 +603,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced.flush();
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -616,15 +621,15 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced.cancel();
 
 			await vi.advanceTimersByTimeAsync(delay);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 		});
 
 		it('should clear all timers', async () => {
@@ -632,26 +637,26 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay, maxWait: 200 });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 			debounced.cancel();
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 		});
 
 		it('should be safe to call when nothing is pending', async () => {
 			const mockFn = vi.fn(async (_arg: string) => {});
 			const debounced = debounce(mockFn, { delay });
 
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 			expect(() => debounced.cancel()).not.toThrow();
 
 			await vi.advanceTimersByTimeAsync(delay);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 		});
 
 		it('should start fresh debounce cycle after cancel', async () => {
@@ -659,13 +664,13 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced.cancel();
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('second');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
 			expect(mockFn).toHaveBeenNthCalledWith(1, 'second');
@@ -702,7 +707,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced.flush();
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -722,7 +727,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced.flush();
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -742,7 +747,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			expect(() => debounced.flush()).not.toThrow();
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 		});
 
 		it('should start fresh debounce cycle after flush', async () => {
@@ -750,7 +755,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced.flush();
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -772,13 +777,13 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('second');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('third');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced.flush();
 
@@ -797,7 +802,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced(1);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -816,7 +821,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay, onError });
 
 			debounced();
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -847,19 +852,19 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay, maxWait: 200 });
 
 			debounced(1);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(90);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced(2);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(90);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced(3);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(90);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -875,16 +880,16 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced(1);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced.cancel();
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 		});
 
 		it('should handle flush with sync functions', async () => {
@@ -892,7 +897,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced(1);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced.flush();
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -910,7 +915,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced();
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -926,7 +931,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced(undefined);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -942,7 +947,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced(null);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -958,7 +963,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay });
 
 			debounced(1, 'test', true);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -975,7 +980,7 @@ describe('debounce', () => {
 
 			const testObj = { value: 1 };
 			debounced(testObj);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -994,7 +999,7 @@ describe('debounce', () => {
 			const testArr = [1, 2, 3];
 
 			debounced(testArr);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -1014,7 +1019,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay: 0 });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(0);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -1030,7 +1035,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay: 0, maxWait: 0 });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(0);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -1046,7 +1051,7 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay: 0, maxWait: 0 });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(0);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -1077,13 +1082,13 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay: 0 });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('second');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			debounced('third');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(0);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -1099,10 +1104,10 @@ describe('debounce', () => {
 			const debounced = debounce(mockFn, { delay: delay * 1000 });
 
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay * 900);
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay * 100);
 			expect(mockFn).toHaveBeenCalledTimes(1);
@@ -1121,7 +1126,7 @@ describe('debounce', () => {
 
 			// First call with error
 			debounced('first');
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 
@@ -1154,7 +1159,7 @@ describe('debounce', () => {
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn1).toHaveBeenCalledTimes(1);
 			expect(mockFn1).toHaveBeenNthCalledWith(1, 'a');
-			expect(mockFn2).not.toHaveBeenCalled();
+			expect(mockFn2).toHaveBeenCalledTimes(0);
 
 			await vi.advanceTimersByTimeAsync(delay);
 
@@ -1176,7 +1181,7 @@ describe('debounce', () => {
 			debounced.cancel();
 			debounced.flush();
 
-			expect(mockFn).not.toHaveBeenCalled();
+			expect(mockFn).toHaveBeenCalledTimes(0);
 		});
 
 		it('should handle calling debounced function after flush', async () => {
