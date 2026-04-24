@@ -1,140 +1,198 @@
 <!doctype html>
 <html lang="en">
-
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Debounce Function Demo</title>
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@atifc/css/dist/root.css" />
-	<style>
-		:root {
-			--theme-accent-hue: 260;
-		}
-
-		body {
-			background: var(--surface-1);
-			padding: var(--space-xl);
-
-			font-family: var(--font-sans);
-			line-height: var(--leading-normal);
-			color: var(--text-primary);
-
-			@media (max-width: 48rem) {
-				padding: var(--space-md);
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Debounce Function Demo</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@atifc/css/dist/root.css" />
+		<style>
+			:root {
+				--theme-accent-hue: 260;
 			}
 
-			.container {
-				max-width: var(--container-fluid-xl);
-				margin: auto;
+			body {
+				background: var(--surface-1);
+				padding: var(--space-xl);
 
-				@media (min-width: 48rem) {
-					min-width: var(--container-sm);
+				font-family: var(--font-sans);
+				line-height: var(--leading-normal);
+				color: var(--text-primary);
+
+				@media (max-width: 48rem) {
+					padding: var(--space-md);
 				}
 
-				header {
-					display: flex;
-					justify-content: space-between;
-					flex-wrap: wrap;
-					gap: var(--space-lg);
+				.container {
+					max-width: var(--container-fluid-xl);
+					margin: auto;
 
-					margin-bottom: var(--space-2xl);
-					border-bottom: var(--border-width) solid var(--border-default);
-
-					h1 {
-						margin-bottom: var(--space-sm);
-
-						font-size: var(--text-xl);
-						font-weight: var(--font-bold);
+					@media (min-width: 48rem) {
+						min-width: var(--container-sm);
 					}
 
-					.subtitle {
-						margin-bottom: var(--space-sm);
-
-						font-size: var(--text-sm);
-						color: var(--text-secondary);
-					}
-
-					.header-links {
+					header {
 						display: flex;
-						align-items: center;
-						gap: var(--space-sm);
+						justify-content: space-between;
+						flex-wrap: wrap;
+						gap: var(--space-lg);
 
-						a {
-							img {
-								display: block;
+						margin-bottom: var(--space-2xl);
+						border-bottom: var(--border-width) solid var(--border-default);
 
-								height: var(--text-lg);
+						h1 {
+							margin-bottom: var(--space-sm);
+
+							font-size: var(--text-xl);
+							font-weight: var(--font-bold);
+						}
+
+						.subtitle {
+							margin-bottom: var(--space-sm);
+
+							font-size: var(--text-sm);
+							color: var(--text-secondary);
+						}
+
+						.header-links {
+							display: flex;
+							align-items: center;
+							gap: var(--space-sm);
+
+							a {
+								img {
+									display: block;
+
+									height: var(--text-lg);
+								}
 							}
 						}
 					}
-				}
 
-				.grid-layout {
-					display: grid;
-					grid-template-columns: 1fr 1fr;
-					gap: var(--space-xl);
+					.grid-layout {
+						display: grid;
+						grid-template-columns: 1fr 1fr;
+						gap: var(--space-xl);
 
-					@media (max-width: 64rem) {
-						grid-template-columns: 1fr;
-					}
-				}
-
-				.section {
-					border: var(--border-width) solid var(--border-default);
-					border-radius: var(--radius-lg);
-					background: var(--surface-2);
-					padding: var(--space-xl);
-					display: flex;
-					flex-direction: column;
-
-					@media (max-width: 48rem) {
-						padding: var(--space-lg);
+						@media (max-width: 64rem) {
+							grid-template-columns: 1fr;
+						}
 					}
 
-					.section-title {
-						margin-bottom: var(--space-lg);
-
-						font-size: var(--text-md);
-						font-weight: var(--font-semibold);
-					}
-
-					.info-box {
-						margin-bottom: var(--space-lg);
-						border: var(--border-width) solid var(--accent);
-						border-radius: var(--radius-md);
-						background: var(--accent-alpha);
-						padding: var(--space-md);
-
-						font-size: var(--text-sm);
-						color: var(--text-secondary);
-					}
-
-					.controls {
+					.section {
+						border: var(--border-width) solid var(--border-default);
+						border-radius: var(--radius-lg);
+						background: var(--surface-2);
+						padding: var(--space-xl);
 						display: flex;
-						flex-wrap: wrap;
-						gap: var(--space-lg);
-						align-items: flex-start;
+						flex-direction: column;
 
-						.control-group {
+						@media (max-width: 48rem) {
+							padding: var(--space-lg);
+						}
+
+						.section-title {
+							margin-bottom: var(--space-lg);
+
+							font-size: var(--text-md);
+							font-weight: var(--font-semibold);
+						}
+
+						.info-box {
+							margin-bottom: var(--space-lg);
+							border: var(--border-width) solid var(--accent);
+							border-radius: var(--radius-md);
+							background: var(--accent-alpha);
+							padding: var(--space-md);
+
+							font-size: var(--text-sm);
+							color: var(--text-secondary);
+						}
+
+						.controls {
 							display: flex;
-							flex-direction: column;
-							gap: var(--space-sm);
-							flex: 1 1 auto;
-							min-width: 7rem;
+							flex-wrap: wrap;
+							gap: var(--space-lg);
+							align-items: flex-start;
+
+							.control-group {
+								display: flex;
+								flex-direction: column;
+								gap: var(--space-sm);
+								flex: 1 1 auto;
+								min-width: 7rem;
+
+								label {
+									font-size: var(--text-sm);
+									font-weight: var(--font-medium);
+									color: var(--text-secondary);
+								}
+
+								input[type='text'] {
+									border: var(--border-width) solid var(--border-default);
+									border-radius: var(--radius-md);
+									background: var(--surface-1);
+									padding: var(--space-sm) var(--space-md);
+									width: 100%;
+
+									font-size: var(--text-base);
+									color: var(--text-primary);
+									transition: var(--transition-colors);
+
+									&:focus {
+										outline: none;
+										border-color: var(--accent);
+										box-shadow: 0 0 0 var(--focus-ring-offset) var(--accent-alpha);
+									}
+								}
+
+								input[type='checkbox'] {
+									appearance: none;
+									width: var(--text-lg);
+									height: var(--text-lg);
+									cursor: pointer;
+									border: var(--border-width) solid var(--border-default);
+									border-radius: var(--radius-md);
+									background: var(--surface-1);
+									transition: var(--transition-colors);
+
+									&:checked {
+										border-color: var(--accent);
+										background: var(--accent);
+										background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.5 5l2.5 2.5 4.5-4.5' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+										background-repeat: no-repeat;
+										background-position: center;
+										background-size: 65%;
+									}
+
+									&:focus {
+										box-shadow: 0 0 0 var(--focus-ring-offset) var(--accent-alpha);
+										outline: none;
+										border-color: var(--accent);
+									}
+								}
+							}
+						}
+
+						.input-group {
+							margin-bottom: var(--space-lg);
 
 							label {
+								display: block;
+
+								margin-bottom: var(--space-sm);
 								font-size: var(--text-sm);
 								font-weight: var(--font-medium);
 								color: var(--text-secondary);
 							}
 
-							input[type='text'] {
+							textarea {
+								resize: vertical;
+								width: 100%;
+								min-height: var(--space-4xl);
 								border: var(--border-width) solid var(--border-default);
 								border-radius: var(--radius-md);
 								background: var(--surface-1);
-								padding: var(--space-sm) var(--space-md);
-								width: 100%;
-
+								padding: var(--space-md);
 								font-size: var(--text-base);
 								color: var(--text-primary);
 								transition: var(--transition-colors);
@@ -145,439 +203,388 @@
 									box-shadow: 0 0 0 var(--focus-ring-offset) var(--accent-alpha);
 								}
 							}
-
-							input[type='checkbox'] {
-								appearance: none;
-								width: var(--text-lg);
-								height: var(--text-lg);
-								cursor: pointer;
-								border: var(--border-width) solid var(--border-default);
-								border-radius: var(--radius-md);
-								background: var(--surface-1);
-								transition: var(--transition-colors);
-
-								&:checked {
-									border-color: var(--accent);
-									background: var(--accent);
-									background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.5 5l2.5 2.5 4.5-4.5' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-									background-repeat: no-repeat;
-									background-position: center;
-									background-size: 65%;
-								}
-
-								&:focus {
-									box-shadow: 0 0 0 var(--focus-ring-offset) var(--accent-alpha);
-									outline: none;
-									border-color: var(--accent);
-								}
-							}
-						}
-					}
-
-					.input-group {
-						margin-bottom: var(--space-lg);
-
-						label {
-							display: block;
-
-							margin-bottom: var(--space-sm);
-							font-size: var(--text-sm);
-							font-weight: var(--font-medium);
-							color: var(--text-secondary);
 						}
 
-						textarea {
-							resize: vertical;
-							width: 100%;
-							min-height: var(--space-4xl);
-							border: var(--border-width) solid var(--border-default);
-							border-radius: var(--radius-md);
-							background: var(--surface-1);
-							padding: var(--space-md);
-							font-size: var(--text-base);
-							color: var(--text-primary);
-							transition: var(--transition-colors);
-
-							&:focus {
-								outline: none;
-								border-color: var(--accent);
-								box-shadow: 0 0 0 var(--focus-ring-offset) var(--accent-alpha);
-							}
-						}
-					}
-
-					.button-group {
-						display: flex;
-						flex-wrap: wrap;
-						gap: var(--space-md);
-
-						.btn {
-							cursor: pointer;
-							border: var(--border-width) solid transparent;
-							border-radius: var(--radius-md);
-							padding: var(--space-sm) var(--space-lg);
-							font-size: var(--text-sm);
-							font-weight: var(--font-medium);
-							transition: var(--transition);
-						}
-
-						.btn-primary {
-							background: var(--accent);
-
-							color: oklch(100% 0 0);
-
-							&:hover {
-								background: var(--accent-hover);
-							}
-						}
-
-						.btn-secondary {
-							background: var(--surface-3);
-							border-color: var(--border-default);
-
-							color: var(--text-primary);
-
-							&:hover {
-								background: var(--surface-4);
-							}
-						}
-					}
-
-					.stats {
-						display: grid;
-						grid-template-columns: repeat(3, 1fr);
-						gap: var(--space-lg);
-
-						@media (max-width: 48rem) {
-							grid-template-columns: repeat(2, 1fr);
-						}
-
-						@media (max-width: 32rem) {
-							grid-template-columns: 1fr;
-						}
-
-						.stat-card {
-							background: var(--surface-1);
-							border: var(--border-width) solid var(--border-default);
-							border-radius: var(--radius-md);
-							padding: var(--space-lg);
-
-							text-align: center;
-
-							.stat-value {
-								margin-bottom: var(--space-xs);
-
-								font-size: var(--text-xl);
-								font-weight: var(--font-bold);
-								color: var(--accent);
-							}
-
-							.stat-label {
-								font-size: var(--text-sm);
-								color: var(--text-secondary);
-							}
-						}
-					}
-
-					.log-container {
-						border: var(--border-width) solid var(--border-default);
-						border-radius: var(--radius-md);
-						background: var(--surface-1);
-						overflow: hidden;
-
-						.log-header {
+						.button-group {
 							display: flex;
-							justify-content: space-between;
+							flex-wrap: wrap;
+							gap: var(--space-md);
 
-							border-bottom: var(--border-width) solid var(--border-default);
-							background: var(--surface-3);
-							padding: var(--space-md);
-
-							.log-count {
+							.btn {
+								cursor: pointer;
+								border: var(--border-width) solid transparent;
+								border-radius: var(--radius-md);
+								padding: var(--space-sm) var(--space-lg);
 								font-size: var(--text-sm);
-								color: var(--text-secondary);
+								font-weight: var(--font-medium);
+								transition: var(--transition);
 							}
 
-							.clear-btn {
-								cursor: pointer;
-								border: var(--border-width) solid var(--border-default);
-								border-radius: var(--radius-sm);
-								background: var(--surface-4);
-								padding: var(--space-xs) var(--space-md);
-								font-size: var(--text-xs);
-								color: var(--text-secondary);
-								transition: var(--transition);
+							.btn-primary {
+								background: var(--accent);
+
+								color: oklch(100% 0 0);
 
 								&:hover {
-									background: var(--surface-5);
+									background: var(--accent-hover);
+								}
+							}
 
-									color: var(--text-primary);
+							.btn-secondary {
+								background: var(--surface-3);
+								border-color: var(--border-default);
+
+								color: var(--text-primary);
+
+								&:hover {
+									background: var(--surface-4);
 								}
 							}
 						}
 
-						.log-entries {
-							padding: var(--space-md);
-							max-height: 18rem;
-							overflow-y: auto;
+						.stats {
+							display: grid;
+							grid-template-columns: repeat(3, 1fr);
+							gap: var(--space-lg);
 
-							.log-empty {
-								padding: var(--space-xl);
-
-								font-size: var(--text-sm);
-								text-align: center;
-								color: var(--text-tertiary);
+							@media (max-width: 48rem) {
+								grid-template-columns: repeat(2, 1fr);
 							}
 
-							.log-entry {
+							@media (max-width: 32rem) {
+								grid-template-columns: 1fr;
+							}
+
+							.stat-card {
+								background: var(--surface-1);
+								border: var(--border-width) solid var(--border-default);
+								border-radius: var(--radius-md);
+								padding: var(--space-lg);
+
+								text-align: center;
+
+								.stat-value {
+									margin-bottom: var(--space-xs);
+
+									font-size: var(--text-xl);
+									font-weight: var(--font-bold);
+									color: var(--accent);
+								}
+
+								.stat-label {
+									font-size: var(--text-sm);
+									color: var(--text-secondary);
+								}
+							}
+						}
+
+						.log-container {
+							border: var(--border-width) solid var(--border-default);
+							border-radius: var(--radius-md);
+							background: var(--surface-1);
+							overflow: hidden;
+
+							.log-header {
 								display: flex;
 								justify-content: space-between;
-								align-items: center;
-								gap: var(--space-md);
 
-								margin-bottom: var(--space-sm);
-								border-radius: var(--radius-sm);
-								background: var(--surface-2);
-								padding: var(--space-sm) var(--space-md);
+								border-bottom: var(--border-width) solid var(--border-default);
+								background: var(--surface-3);
+								padding: var(--space-md);
 
-								.log-time {
-									font-family: var(--font-mono);
+								.log-count {
+									font-size: var(--text-sm);
+									color: var(--text-secondary);
+								}
+
+								.clear-btn {
+									cursor: pointer;
+									border: var(--border-width) solid var(--border-default);
+									border-radius: var(--radius-sm);
+									background: var(--surface-4);
+									padding: var(--space-xs) var(--space-md);
 									font-size: var(--text-xs);
+									color: var(--text-secondary);
+									transition: var(--transition);
+
+									&:hover {
+										background: var(--surface-5);
+
+										color: var(--text-primary);
+									}
+								}
+							}
+
+							.log-entries {
+								padding: var(--space-md);
+								max-height: 18rem;
+								overflow-y: auto;
+
+								.log-empty {
+									padding: var(--space-xl);
+
+									font-size: var(--text-sm);
+									text-align: center;
 									color: var(--text-tertiary);
 								}
 
-								.log-value {
-									font-family: var(--font-mono);
-									font-size: var(--text-sm);
-									text-align: right;
-									word-break: break-all;
-								}
+								.log-entry {
+									display: flex;
+									justify-content: space-between;
+									align-items: center;
+									gap: var(--space-md);
 
-								&:last-child {
-									margin-bottom: 0;
+									margin-bottom: var(--space-sm);
+									border-radius: var(--radius-sm);
+									background: var(--surface-2);
+									padding: var(--space-sm) var(--space-md);
+
+									.log-time {
+										font-family: var(--font-mono);
+										font-size: var(--text-xs);
+										color: var(--text-tertiary);
+									}
+
+									.log-value {
+										font-family: var(--font-mono);
+										font-size: var(--text-sm);
+										text-align: right;
+										word-break: break-all;
+									}
+
+									&:last-child {
+										margin-bottom: 0;
+									}
 								}
 							}
 						}
 					}
 				}
 			}
-		}
-	</style>
-</head>
+		</style>
+	</head>
 
-<body>
-	<div class="container">
-		<header>
-			<div>
-				<h1>Debounce Function Demo</h1>
-				<p class="subtitle">
-					Type in the text area and watch the debounced function calls in real-time
-				</p>
-			</div>
-			<div class="header-links">
-				<a href="https://github.com/atif-c/debounce-ts" target="_blank" rel="noopener noreferrer">
-					<img src="https://img.shields.io/badge/GitHub-debounce--ts-blue?&logo=github"
-						alt="View on GitHub" />
-				</a>
-				<a href="https://npmjs.com/package/debounce-ts" target="_blank" rel="noopener noreferrer">
-					<img src="https://img.shields.io/npm/v/debounce-ts?logo=npm" alt="View on NPM" />
-				</a>
-			</div>
-		</header>
+	<body>
+		<div class="container">
+			<header>
+				<div>
+					<h1>Debounce Function Demo</h1>
+					<p class="subtitle">
+						Type in the text area and watch the debounced function calls in real-time
+					</p>
+				</div>
+				<div class="header-links">
+					<a href="https://github.com/atif-c/debounce-ts" target="_blank" rel="noopener noreferrer">
+						<img
+							src="https://img.shields.io/badge/GitHub-debounce--ts-blue?&logo=github"
+							alt="View on GitHub"
+						/>
+					</a>
+					<a href="https://npmjs.com/package/debounce-ts" target="_blank" rel="noopener noreferrer">
+						<img src="https://img.shields.io/npm/v/debounce-ts?logo=npm" alt="View on NPM" />
+					</a>
+				</div>
+			</header>
 
-		<div class="grid-layout">
-			<div class="section">
-				<h2 class="section-title">Configuration</h2>
-				<div class="info-box">
-					Change these settings in real-time to see how they affect the debounce behavior
-				</div>
-				<div class="controls">
-					<div class="control-group">
-						<label>Delay (ms)</label>
-						<input type="text" inputmode="numeric" id="delay" value="250" min="0" step="100" />
+			<div class="grid-layout">
+				<div class="section">
+					<h2 class="section-title">Configuration</h2>
+					<div class="info-box">
+						Change these settings in real-time to see how they affect the debounce behavior
 					</div>
-					<div class="control-group">
-						<label>Max Wait (ms)</label>
-						<input type="text" inputmode="numeric" id="maxWait" value="1000" min="0" step="100"
-							placeholder="None" />
-					</div>
-					<div class="control-group">
-						<label>Immediate</label>
-						<input type="checkbox" id="immediate" />
-					</div>
-				</div>
-			</div>
-
-			<div class="section">
-				<div class="section-title">Text Input</div>
-				<div class="input-group">
-					<label>Type something here:</label>
-					<textarea id="textInput" placeholder="Start typing..."></textarea>
-				</div>
-				<div class="button-group">
-					<button class="btn btn-primary" id="flushBtn">Flush (Execute Now)</button>
-					<button class="btn btn-secondary" id="cancelBtn">Cancel Pending</button>
-				</div>
-			</div>
-
-			<div class="section">
-				<h2 class="section-title">Statistics</h2>
-				<div class="stats">
-					<div class="stat-card">
-						<div class="stat-value" id="totalCalls">0</div>
-						<div class="stat-label">Input Changes</div>
-					</div>
-					<div class="stat-card">
-						<div class="stat-value" id="debouncedCalls">0</div>
-						<div class="stat-label">Debounced Calls</div>
-					</div>
-					<div class="stat-card">
-						<div class="stat-value" id="savedCalls">0</div>
-						<div class="stat-label">Calls Prevented</div>
+					<div class="controls">
+						<div class="control-group">
+							<label>Delay (ms)</label>
+							<input type="text" inputmode="numeric" id="delay" value="250" min="0" step="100" />
+						</div>
+						<div class="control-group">
+							<label>Max Wait (ms)</label>
+							<input
+								type="text"
+								inputmode="numeric"
+								id="maxWait"
+								value="1000"
+								min="0"
+								step="100"
+								placeholder="None"
+							/>
+						</div>
+						<div class="control-group">
+							<label>Immediate</label>
+							<input type="checkbox" id="immediate" />
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<div class="section">
-				<h2 class="section-title">Function Call Log</h2>
-				<div class="log-container">
-					<div class="log-header">
-						<span class="log-count">Calls: <span id="logCount">0</span></span>
-						<button class="clear-btn" id="clearLog">Clear Log</button>
+				<div class="section">
+					<div class="section-title">Text Input</div>
+					<div class="input-group">
+						<label>Type something here:</label>
+						<textarea id="textInput" placeholder="Start typing..."></textarea>
 					</div>
-					<div class="log-entries" id="logEntries">
-						<div class="log-empty">No function calls yet. Start typing!</div>
+					<div class="button-group">
+						<button class="btn btn-primary" id="flushBtn">Flush (Execute Now)</button>
+						<button class="btn btn-secondary" id="cancelBtn">Cancel Pending</button>
+					</div>
+				</div>
+
+				<div class="section">
+					<h2 class="section-title">Statistics</h2>
+					<div class="stats">
+						<div class="stat-card">
+							<div class="stat-value" id="totalCalls">0</div>
+							<div class="stat-label">Input Changes</div>
+						</div>
+						<div class="stat-card">
+							<div class="stat-value" id="debouncedCalls">0</div>
+							<div class="stat-label">Debounced Calls</div>
+						</div>
+						<div class="stat-card">
+							<div class="stat-value" id="savedCalls">0</div>
+							<div class="stat-label">Calls Prevented</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="section">
+					<h2 class="section-title">Function Call Log</h2>
+					<div class="log-container">
+						<div class="log-header">
+							<span class="log-count">Calls: <span id="logCount">0</span></span>
+							<button class="clear-btn" id="clearLog">Clear Log</button>
+						</div>
+						<div class="log-entries" id="logEntries">
+							<div class="log-empty">No function calls yet. Start typing!</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 
-	<script type="module">
-		import { debounce } from 'https://cdn.jsdelivr.net/npm/debounce-ts/dist/index.js';
+		<script type="module">
+			import { debounce } from 'https://cdn.jsdelivr.net/npm/debounce-ts/dist/index.js';
 
-		// State
-		let totalCalls = 0;
-		let debouncedCalls = 0;
-		let currentDebounced = null;
+			// State
+			let totalCalls = 0;
+			let debouncedCalls = 0;
+			let currentDebounced = null;
 
-		// Elements
-		const textInput = document.getElementById('textInput');
-		const delayInput = document.getElementById('delay');
-		const maxWaitInput = document.getElementById('maxWait');
-		const immediateInput = document.getElementById('immediate');
-		const logEntries = document.getElementById('logEntries');
-		const logCount = document.getElementById('logCount');
-		const totalCallsEl = document.getElementById('totalCalls');
-		const debouncedCallsEl = document.getElementById('debouncedCalls');
-		const savedCallsEl = document.getElementById('savedCalls');
-		const flushBtn = document.getElementById('flushBtn');
-		const cancelBtn = document.getElementById('cancelBtn');
-		const clearLogBtn = document.getElementById('clearLog');
+			// Elements
+			const textInput = document.getElementById('textInput');
+			const delayInput = document.getElementById('delay');
+			const maxWaitInput = document.getElementById('maxWait');
+			const immediateInput = document.getElementById('immediate');
+			const logEntries = document.getElementById('logEntries');
+			const logCount = document.getElementById('logCount');
+			const totalCallsEl = document.getElementById('totalCalls');
+			const debouncedCallsEl = document.getElementById('debouncedCalls');
+			const savedCallsEl = document.getElementById('savedCalls');
+			const flushBtn = document.getElementById('flushBtn');
+			const cancelBtn = document.getElementById('cancelBtn');
+			const clearLogBtn = document.getElementById('clearLog');
 
-		// Log function call
-		function logCall(value, type = 'normal') {
-			debouncedCalls++;
-			debouncedCallsEl.textContent = debouncedCalls;
-			savedCallsEl.textContent = totalCalls - debouncedCalls;
+			// Log function call
+			function logCall(value, type = 'normal') {
+				debouncedCalls++;
+				debouncedCallsEl.textContent = debouncedCalls;
+				savedCallsEl.textContent = totalCalls - debouncedCalls;
 
-			const empty = logEntries.querySelector('.log-empty');
-			if (empty) {
-				empty.remove();
-			}
+				const empty = logEntries.querySelector('.log-empty');
+				if (empty) {
+					empty.remove();
+				}
 
-			const entry = document.createElement('div');
-			entry.className = 'log-entry';
+				const entry = document.createElement('div');
+				entry.className = 'log-entry';
 
-			const now = new Date();
-			const timeString = now.toLocaleTimeString('en-US', {
-				hour12: false,
-				hour: '2-digit',
-				minute: '2-digit',
-				second: '2-digit',
-				fractionalSecondDigits: 3
-			});
+				const now = new Date();
+				const timeString = now.toLocaleTimeString('en-US', {
+					hour12: false,
+					hour: '2-digit',
+					minute: '2-digit',
+					second: '2-digit',
+					fractionalSecondDigits: 3
+				});
 
-			entry.innerHTML = `
+				entry.innerHTML = `
                 <div class="log-time">${timeString} ${type === 'flush' ? '(FLUSHED)' : type === 'leading' ? '(LEADING)' : '(TRAILING)'}</div>
                 <div class="log-value">${value || '<empty>'}</div>
             `;
 
-			logEntries.insertBefore(entry, logEntries.firstChild);
-			logCount.textContent = debouncedCalls;
-		}
+				logEntries.insertBefore(entry, logEntries.firstChild);
+				logCount.textContent = debouncedCalls;
+			}
 
-		// Create debounced function
-		function createDebouncedFunction() {
-			const delay = parseInt(delayInput.value) || 1000;
-			const maxWait = maxWaitInput.value ? parseInt(maxWaitInput.value) : undefined;
-			const immediate = immediateInput.checked;
+			// Create debounced function
+			function createDebouncedFunction() {
+				const delay = parseInt(delayInput.value) || 1000;
+				const maxWait = maxWaitInput.value ? parseInt(maxWaitInput.value) : undefined;
+				const immediate = immediateInput.checked;
 
-			return debounce(
-				value => {
-					logCall(value, immediate && totalCalls === 1 ? 'leading' : 'normal');
-				},
-				{
-					delay,
-					maxWait,
-					immediate,
-					onError: error => {
-						console.error('Debounce error:', error);
+				return debounce(
+					value => {
+						logCall(value, immediate && totalCalls === 1 ? 'leading' : 'normal');
+					},
+					{
+						delay,
+						maxWait,
+						immediate,
+						onError: error => {
+							console.error('Debounce error:', error);
+						}
 					}
-				}
-			);
-		}
-
-		// Initialize debounced function
-		currentDebounced = createDebouncedFunction();
-
-		// Handle text input
-		textInput.addEventListener('input', e => {
-			totalCalls++;
-			totalCallsEl.textContent = totalCalls;
-			savedCallsEl.textContent = totalCalls - debouncedCalls;
-			currentDebounced(e.target.value);
-		});
-
-		// Handle configuration changes - recreate debounced function
-		function handleConfigChange() {
-			// Cancel previous debounced function
-			if (currentDebounced) {
-				currentDebounced.cancel();
+				);
 			}
-			// Create new debounced function with new settings
+
+			// Initialize debounced function
 			currentDebounced = createDebouncedFunction();
-		}
 
-		delayInput.addEventListener('change', handleConfigChange);
-		maxWaitInput.addEventListener('change', handleConfigChange);
-		immediateInput.addEventListener('change', handleConfigChange);
+			// Handle text input
+			textInput.addEventListener('input', e => {
+				totalCalls++;
+				totalCallsEl.textContent = totalCalls;
+				savedCallsEl.textContent = totalCalls - debouncedCalls;
+				currentDebounced(e.target.value);
+			});
 
-		// Flush button
-		flushBtn.addEventListener('click', () => {
-			if (currentDebounced) {
-				currentDebounced.flush();
+			// Handle configuration changes - recreate debounced function
+			function handleConfigChange() {
+				// Cancel previous debounced function
+				if (currentDebounced) {
+					currentDebounced.cancel();
+				}
+				// Create new debounced function with new settings
+				currentDebounced = createDebouncedFunction();
 			}
-		});
 
-		// Cancel button
-		cancelBtn.addEventListener('click', () => {
-			if (currentDebounced) {
-				currentDebounced.cancel();
-			}
-		});
+			delayInput.addEventListener('change', handleConfigChange);
+			maxWaitInput.addEventListener('change', handleConfigChange);
+			immediateInput.addEventListener('change', handleConfigChange);
 
-		// Clear log button
-		clearLogBtn.addEventListener('click', () => {
-			logEntries.innerHTML = '<div class="log-empty">No function calls yet. Start typing!</div>';
-			logCount.textContent = '0';
-			debouncedCalls = 0;
-			totalCalls = 0;
-			debouncedCallsEl.textContent = '0';
-			totalCallsEl.textContent = '0';
-			savedCallsEl.textContent = '0';
-		});
-	</script>
-</body>
+			// Flush button
+			flushBtn.addEventListener('click', () => {
+				if (currentDebounced) {
+					currentDebounced.flush();
+				}
+			});
 
+			// Cancel button
+			cancelBtn.addEventListener('click', () => {
+				if (currentDebounced) {
+					currentDebounced.cancel();
+				}
+			});
+
+			// Clear log button
+			clearLogBtn.addEventListener('click', () => {
+				logEntries.innerHTML = '<div class="log-empty">No function calls yet. Start typing!</div>';
+				logCount.textContent = '0';
+				debouncedCalls = 0;
+				totalCalls = 0;
+				debouncedCallsEl.textContent = '0';
+				totalCallsEl.textContent = '0';
+				savedCallsEl.textContent = '0';
+			});
+		</script>
+	</body>
 </html>
