@@ -1,6 +1,6 @@
 # debounce-ts
 
-[![GitHub Repo](https://img.shields.io/badge/GitHub-atif--c%2Fdebounce-blue?logo=github)](https://github.com/atif-c/debounce-ts)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-debounce-blue?logo=github)](https://github.com/atif-c/debounce-ts)
 [![npm Package](https://img.shields.io/npm/v/debounce-ts?logo=npm)](https://www.npmjs.com/package/debounce-ts)
 [![Demo](https://img.shields.io/badge/Demo-blue)](https://atif-c.github.io/debounce-ts/demo)
 
