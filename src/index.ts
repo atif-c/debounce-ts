@@ -107,8 +107,8 @@ export interface DebouncedFunction<TArgs extends readonly unknown[]> {
  *   trailing if new args arrive during cooldown.
  * @param {number} [options.delay=1000] - Delay in ms after last call as an integer
  * @param {number} [options.maxWait] - Max time in ms before forced execution as an integer
- * @param {Function} [options.onError] - Error handler for async rejections.
- *   Without this, errors surface as unhandled rejections.
+ * @param {Function} [options.onError] - Error handler for sync errors and async
+ *   rejections. Without this, errors propagate as if `fn` were called directly.
  * @returns {DebouncedFunction} Debounced function (void return) with
  *   cancel() and flush() methods
  *
@@ -174,23 +174,18 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 		const args = pendingArgs;
 		pendingArgs = null;
 
+		if (!onError) {
+			// No error handling requested, call fn directly so errors propagate naturally
+			fn(...args);
+			return;
+		}
+
 		// Wrap in try-catch to handle sync errors, then Promise.resolve() for async
 		try {
 			const result = fn(...args);
-			const promise = Promise.resolve(result);
-			if (onError) {
-				promise.catch(onError);
-			}
-			// Without onError, the rejection is unhandled → triggers
-			// Node's unhandledRejection event (standard, visible behavior)
+			Promise.resolve(result).catch(onError);
 		} catch (error) {
-			// Handle synchronous errors
-			if (onError) {
-				onError(error);
-			} else {
-				// Re-throw to maintain unhandled rejection behavior
-				Promise.reject(error);
-			}
+			onError(error);
 		}
 	};
 
