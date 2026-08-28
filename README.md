@@ -92,7 +92,7 @@ discardButton.addEventListener('click', () => autoSave.cancel());
 
 ### Error handling
 
-By default, errors from the debounced function surface as unhandled rejections. Use `onError` to handle them explicitly:
+By default, errors propagate as if `fn` were called directly. Use `onError` to handle them explicitly:
 
 ```typescript
 import { debounce } from 'debounce-ts';
@@ -109,7 +109,7 @@ const save = debounce(
 );
 ```
 
-Without `onError`, errors trigger Node's `unhandledRejection` event.
+Without `onError`, sync errors throw naturally and async rejections trigger Node's `unhandledRejection` event.
 
 ## API
 
@@ -127,7 +127,7 @@ Creates a debounced version of the provided function.
 | `delay`     | `number`                   | `1000`  | Wait time in ms after last call                                              |
 | `immediate` | `boolean`                  | `false` | Fire on leading edge. Also fires trailing if new args arrive during cooldown |
 | `maxWait`   | `number`                   | —       | Max time in ms before forced execution                                       |
-| `onError`   | `(error: unknown) => void` | —       | Error handler for async rejections                                           |
+| `onError`   | `(error: unknown) => void` | —       | Error handler for sync errors and async rejections                           |
 
 **Returns:** `DebouncedFunction` — Debounced wrapper (void return, fire-and-forget).
 
