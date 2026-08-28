@@ -530,22 +530,22 @@ describe('debounce-ts', () => {
 			expect(onError).toHaveBeenCalledTimes(0);
 		});
 
-		it('should handle errors without onError (unhandled rejection)', async () => {
+		it('should leave async rejections unhandled without onError', async () => {
 			const mockFn = vi.fn(async () => {
 				throw new Error('unhandled');
 			});
 			const debounced = debounce(mockFn, { delay });
 
+			// Without onError, the rejection is left unhandled, as expected
 			debounced();
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
-			// No crash - unhandled rejection is the expected behavior
 
 			await vi.advanceTimersByTimeAsync(delay);
 			expect(mockFn).toHaveBeenCalledTimes(1);
 		});
 
-		it('should handle sync function errors without onError (unhandled rejection)', async () => {
+		it('should let sync errors throw naturally without onError (trailing edge)', async () => {
 			const mockFn = vi.fn(() => {
 				throw new Error('sync error');
 			});
@@ -554,10 +554,33 @@ describe('debounce-ts', () => {
 			debounced();
 			expect(mockFn).toHaveBeenCalledTimes(0);
 
-			await vi.advanceTimersByTimeAsync(delay);
+			// Without onError, the timer callback throws, rejecting the pending advance
+			await expect(vi.advanceTimersByTimeAsync(delay)).rejects.toThrow('sync error');
 			expect(mockFn).toHaveBeenCalledTimes(1);
 
 			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+		});
+
+		it('should let sync errors throw synchronously without onError (leading edge)', () => {
+			const mockFn = vi.fn(() => {
+				throw new Error('sync error');
+			});
+			const debounced = debounce(mockFn, { delay, immediate: true });
+
+			// Leading-edge invocation is synchronous, so the error propagates to the caller
+			expect(() => debounced()).toThrow('sync error');
+			expect(mockFn).toHaveBeenCalledTimes(1);
+		});
+
+		it('should let sync errors throw synchronously without onError (flush)', () => {
+			const mockFn = vi.fn(() => {
+				throw new Error('sync error');
+			});
+			const debounced = debounce(mockFn, { delay });
+
+			debounced();
+			expect(() => debounced.flush()).toThrow('sync error');
 			expect(mockFn).toHaveBeenCalledTimes(1);
 		});
 	});
