@@ -158,7 +158,6 @@ describe('debounce-ts', () => {
 		});
 	});
 
-	// Here
 	describe('immediate mode', () => {
 		it('should fire on leading edge', async () => {
 			const mockFn = vi.fn(async (_arg: string) => {});
