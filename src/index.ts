@@ -218,7 +218,7 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 	let firstCallTime: number | null = null;
 
 	const invoke = () => {
-		if (!pendingArgs) return;
+		if (pendingArgs === null) return;
 		const args = pendingArgs;
 		const thisArg = lastThis;
 		pendingArgs = null;
@@ -240,19 +240,19 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 	};
 
 	const clearTimers = () => {
-		if (timeout) {
+		if (timeout !== null) {
 			clearTimeout(timeout);
 			timeout = null;
 		}
 
-		if (maxTimeout) {
+		if (maxTimeout !== null) {
 			clearTimeout(maxTimeout);
 			maxTimeout = null;
 		}
 	};
 
 	const startMaxWaitTimer = () => {
-		if (maxWait === undefined || maxTimeout || firstCallTime === null) return;
+		if (maxWait === undefined || maxTimeout !== null || firstCallTime === null) return;
 
 		const elapsed = Date.now() - firstCallTime;
 		const remaining = Math.max(0, maxWait - elapsed);
@@ -275,7 +275,7 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 
 		const shouldInvokeLeading = immediate && timeout === null;
 
-		if (timeout) {
+		if (timeout !== null) {
 			clearTimeout(timeout);
 		}
 
@@ -289,7 +289,7 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 				invoke();
 			}
 
-			if (maxTimeout) {
+			if (maxTimeout !== null) {
 				clearTimeout(maxTimeout);
 				maxTimeout = null;
 			}
