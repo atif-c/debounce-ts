@@ -243,7 +243,9 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 		lastThis = null;
 
 		if (!onError) {
-			// No error handling requested, call fn directly so errors propagate naturally
+			// Without onError failures are unobservable: sync errors throw from
+			// the timer callback (uncaught) and async rejections stay unhandled.
+			// Leading-edge/flush calls throw synchronously to the caller instead.
 			Reflect.apply(fn, thisArg, args);
 			return;
 		}
