@@ -74,6 +74,66 @@ describe('debounce-ts', () => {
 		it('should accept maxWait equal to delay', () => {
 			expect(() => debounce(async () => {}, { delay, maxWait: 100 })).not.toThrow();
 		});
+
+		it('should throw TypeError for non-function fn', () => {
+			// @ts-expect-error – intentionally passing invalid type
+			const call = () => debounce(undefined, { delay });
+			expect(call).toThrow(new TypeError('fn must be a function'));
+		});
+
+		it('should throw TypeError for null fn', () => {
+			// @ts-expect-error – intentionally passing invalid type
+			const call = () => debounce(null, { delay });
+			expect(call).toThrow(new TypeError('fn must be a function'));
+		});
+
+		it('should throw TypeError for object fn', () => {
+			// @ts-expect-error – intentionally passing invalid type
+			const call = () => debounce({}, { delay });
+			expect(call).toThrow(new TypeError('fn must be a function'));
+		});
+
+		it('should throw TypeError for null options', () => {
+			// @ts-expect-error – intentionally passing invalid type
+			const call = () => debounce(async () => {}, null);
+			expect(call).toThrow(new TypeError('options must be an object'));
+		});
+
+		it('should throw TypeError for non-object options', () => {
+			// @ts-expect-error – intentionally passing invalid type
+			const call = () => debounce(async () => {}, 'delay');
+			expect(call).toThrow(new TypeError('options must be an object'));
+		});
+
+		it('should accept undefined options', () => {
+			expect(() => debounce(async () => {})).not.toThrow();
+		});
+
+		it('should accept empty options', () => {
+			expect(() => debounce(async () => {}, {})).not.toThrow();
+		});
+
+		it('should throw TypeError for non-boolean immediate', () => {
+			// @ts-expect-error – intentionally passing invalid type
+			const call = () => debounce(async () => {}, { delay, immediate: 1 });
+			expect(call).toThrow(new TypeError('immediate must be a boolean'));
+		});
+
+		it('should throw TypeError for truthy string immediate', () => {
+			// @ts-expect-error – intentionally passing invalid type
+			const call = () => debounce(async () => {}, { delay, immediate: 'true' });
+			expect(call).toThrow(new TypeError('immediate must be a boolean'));
+		});
+
+		it('should throw TypeError for non-function onError', () => {
+			// @ts-expect-error – intentionally passing invalid type
+			const call = () => debounce(async () => {}, { delay, onError: 'x' });
+			expect(call).toThrow(new TypeError('onError must be a function'));
+		});
+
+		it('should accept undefined onError', () => {
+			expect(() => debounce(async () => {}, { delay, onError: undefined })).not.toThrow();
+		});
 	});
 
 	describe('basic behaviour', () => {
