@@ -642,6 +642,121 @@ describe('debounce-ts', () => {
 			expect(() => debounced.flush()).toThrow('sync error');
 			expect(mockFn).toHaveBeenCalledTimes(1);
 		});
+
+		it('should not call onError for sync return value', async () => {
+			const onError = vi.fn();
+			const mockFn = vi.fn((_arg: string) => 'ok');
+			const debounced = debounce(mockFn, { delay, onError });
+
+			debounced('first');
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1, 'first');
+			expect(onError).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenCalledTimes(0);
+		});
+
+		it('should not call onError for null return', async () => {
+			const onError = vi.fn();
+			const mockFn = vi.fn(() => null);
+			const debounced = debounce(mockFn, { delay, onError });
+
+			debounced();
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1);
+			expect(onError).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenCalledTimes(0);
+		});
+
+		it('should not call onError for undefined return', async () => {
+			const onError = vi.fn();
+			const mockFn = vi.fn(() => undefined);
+			const debounced = debounce(mockFn, { delay, onError });
+
+			debounced();
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1);
+			expect(onError).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenCalledTimes(0);
+		});
+
+		it('should ignore non-function then property', async () => {
+			const onError = vi.fn();
+			const mockFn = vi.fn(() => ({ then: 123 }));
+			const debounced = debounce(mockFn, { delay, onError });
+
+			debounced();
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenCalledTimes(0);
+		});
+
+		it('should route rejected custom thenable to onError', async () => {
+			const error = new Error('thenable boom');
+			const onError = vi.fn();
+			const mockFn = vi.fn(() => ({
+				then: (_resolve: unknown, reject: (reason?: unknown) => void) => {
+					reject(error);
+				}
+			}));
+			const debounced = debounce(mockFn, { delay, onError });
+
+			debounced();
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenNthCalledWith(1, error);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenCalledTimes(1);
+		});
+
+		it('should not call onError for resolved custom thenable', async () => {
+			const onError = vi.fn();
+			const mockFn = vi.fn(() => ({
+				then: (resolve: (value?: unknown) => void, _reject: unknown) => {
+					resolve('ok');
+				}
+			}));
+			const debounced = debounce(mockFn, { delay, onError });
+
+			debounced();
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenCalledTimes(0);
+		});
 	});
 
 	describe('timer cleanup', () => {

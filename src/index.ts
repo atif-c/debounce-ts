@@ -249,10 +249,13 @@ export const debounce = <TArgs extends readonly unknown[]>(
 			return;
 		}
 
-		// Wrap in try-catch to handle sync errors, then Promise.resolve() for async
+		// Only attach async handling for thenables to avoid a Promise.resolve()
+		// allocation + microtask when `fn` returned a plain sync value.
 		try {
 			const result = Reflect.apply(fn, thisArg, args) as unknown;
-			Promise.resolve(result).catch(onError);
+			if (typeof (result as PromiseLike<unknown> | null | undefined)?.then === 'function') {
+				Promise.resolve(result).catch(onError);
+			}
 		} catch (error) {
 			onError(error);
 		}
