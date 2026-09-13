@@ -138,7 +138,6 @@ export interface DebouncedFunction<TArgs extends readonly unknown[]> {
  * Return values of `fn` are discarded. To observe failures, pass `onError`.
  *
  * @template TArgs - Tuple of the wrapped function's argument types.
- * @template TReturn - Return type of the wrapped function (discarded by the wrapper).
  * @param fn - Function to debounce (sync or async). Called with the
  *   latest caller `this` (e.g. `debounced.call(ctx, ...)` or a detached
  *   method's receiver).
@@ -191,8 +190,8 @@ export interface DebouncedFunction<TArgs extends readonly unknown[]> {
  * // Force save before navigation:
  * save.flush();
  */
-export const debounce = <TArgs extends readonly unknown[], TReturn>(
-	fn: (...args: TArgs) => TReturn | Promise<TReturn>,
+export const debounce = <TArgs extends readonly unknown[]>(
+	fn: (...args: TArgs) => unknown,
 	options?: DebounceOptions
 ): DebouncedFunction<TArgs> => {
 	if (typeof fn !== 'function') {
@@ -252,7 +251,7 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 
 		// Wrap in try-catch to handle sync errors, then Promise.resolve() for async
 		try {
-			const result = Reflect.apply(fn, thisArg, args) as TReturn | Promise<TReturn>;
+			const result = Reflect.apply(fn, thisArg, args) as unknown;
 			Promise.resolve(result).catch(onError);
 		} catch (error) {
 			onError(error);

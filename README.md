@@ -114,7 +114,7 @@ Without `onError`, sync errors throw from the timer callback (uncaught) and asyn
 
 ## API
 
-### `debounce<TArgs extends readonly unknown[], TReturn>(fn: (...args: TArgs) => TReturn | Promise<TReturn>, options?: DebounceOptions): DebouncedFunction<TArgs>`
+### `debounce<TArgs extends readonly unknown[]>(fn: (...args: TArgs) => unknown, options?: DebounceOptions): DebouncedFunction<TArgs>`
 
 Creates a debounced version of the provided function. Only the latest arguments are used when `fn` eventually runs.
 
