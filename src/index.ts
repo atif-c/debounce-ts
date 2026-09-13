@@ -1,21 +1,34 @@
 /**
  * Configuration options for the debounce function.
+ *
+ * All options are optional. `delay` defaults to `1000ms`, `immediate`
+ * defaults to `false` (trailing-edge only), `maxWait` is disabled by
+ * default, and `onError` is unset by default (failures are then uncaught
+ * / unhandled because the wrapper returns `void`).
  */
 export interface DebounceOptions {
 	/**
-	 * If `true`, invokes on the leading edge. Also fires trailing edge if new calls arrive during delay.
+	 * If `true`, invokes on the leading edge. Also fires on the trailing edge
+	 * if the debounced function is called again during the cooldown.
+	 *
+	 * There is no leading-only mode: `immediate: true` always means
+	 * leading + trailing (when re-triggered). Use `immediate: false`
+	 * (the default) for trailing-edge-only debouncing.
 	 *
 	 * @default false
 	 * @example
 	 * ```ts
 	 * const save = debounce(saveFn, { immediate: true, delay: 500 });
-	 * save(); // fires immediately, then 500ms later if called again
+	 * save('a'); // fires immediately (leading)
+	 * save('b'); // fires ~500ms later (trailing, latest args)
 	 * ```
 	 */
 	immediate?: boolean;
 
 	/**
-	 * Milliseconds to wait after the last call before executing. Must be an integer.
+	 * Milliseconds to wait after the last call before executing.
+	 * Must be a non-negative integer. Non-integers, `NaN`, and `Infinity`
+	 * throw a `TypeError`.
 	 *
 	 * @default 1000
 	 * @example
@@ -26,9 +39,14 @@ export interface DebounceOptions {
 	delay?: number;
 
 	/**
-	 * Maximum time to wait before forced execution. Must be ≥ `delay` and an integer.
+	 * Maximum time in milliseconds from the first call in a burst before
+	 * forced execution. Must be a non-negative integer greater than or equal
+	 * to `delay`, otherwise a `TypeError` is thrown.
 	 *
-	 * @default undefined
+	 * Useful to guarantee execution during continuous calls (e.g. save at
+	 * least every 5s while typing).
+	 *
+	 * @default undefined (disabled)
 	 * @example
 	 * ```ts
 	 * // Save at least every 5s, even during continuous typing
@@ -38,7 +56,13 @@ export interface DebounceOptions {
 	maxWait?: number;
 
 	/**
-	 * Error handler for sync errors or async rejections.
+	 * Error handler for sync errors and async rejections thrown by `fn`.
+	 *
+	 * The debounced wrapper returns `void` (fire-and-forget), so without
+	 * `onError` there is no way for the caller to observe failures:
+	 * sync errors throw from the timer callback (uncaught) and async
+	 * rejections are left unhandled (Node `unhandledRejection`). Provide
+	 * `onError` to route failures explicitly.
 	 *
 	 * @example
 	 * ```ts
@@ -53,22 +77,31 @@ export interface DebounceOptions {
 /**
  * A debounced function with control methods.
  *
- * @template TArgs - Function argument types
+ * The wrapper is fire-and-forget: it always returns `void`, never the
+ * wrapped function's return value. Results (and errors, unless `onError`
+ * is set) are not observable by the caller.
+ *
+ * Note: `this` is not forwarded to `fn`. Pass a bound function
+ * (e.g. `debounce(obj.method.bind(obj), ...)`) if `fn` relies on `this`.
+ *
+ * @template TArgs - Tuple of the wrapped function's argument types.
  */
 export interface DebouncedFunction<TArgs extends readonly unknown[]> {
 	/**
-	 * Calls the debounced function. Execution is delayed per configuration.
+	 * Schedules (or re-schedules) execution with the given arguments.
+	 * Only the latest arguments are used when `fn` eventually runs.
 	 *
 	 * @example
 	 * ```ts
 	 * const save = debounce(saveFn, { delay: 500 });
-	 * save(data); // executes 500ms after last call
+	 * save(data); // executes ~500ms after the last call
 	 * ```
 	 */
 	(...args: TArgs): void;
 
 	/**
-	 * Cancels pending invocations. Use for cleanup on unmount.
+	 * Cancels any pending invocation and clears all timers. Safe to call
+	 * when nothing is pending. Use for cleanup on unmount.
 	 *
 	 * @example
 	 * ```ts
@@ -80,7 +113,9 @@ export interface DebouncedFunction<TArgs extends readonly unknown[]> {
 	cancel(): void;
 
 	/**
-	 * Immediately executes pending invocation, bypassing remaining delay.
+	 * Immediately executes the pending invocation (if any) using the latest
+	 * arguments, bypassing the remaining delay, and clears all timers.
+	 * No-op when nothing is pending. Returns `void`, not `fn`'s result.
 	 *
 	 * @example
 	 * ```ts
@@ -94,31 +129,42 @@ export interface DebouncedFunction<TArgs extends readonly unknown[]> {
 
 /**
  * Creates a debounced version of a function (sync or async) that delays invoking it
- * until after a specified wait time has elapsed since the last call.
+ * until after `delay` milliseconds have elapsed since the last call.
  *
- * Supports leading-edge invocation (immediate), max wait enforcement, and
- * error handling via an onError callback.
+ * Supports leading-edge invocation (`immediate`), `maxWait` enforcement, and
+ * error handling via an `onError` callback.
  *
- * @template TArgs - Function argument types
- * @template TReturn - Function return type
- * @param {Function} fn - Function to debounce (can be sync or async)
- * @param {DebounceOptions} [options] - Configuration options
- * @param {boolean} [options.immediate=false] - Fire on leading edge. Also fires
- *   trailing if new args arrive during cooldown.
- * @param {number} [options.delay=1000] - Delay in ms after last call as an integer
- * @param {number} [options.maxWait] - Max time in ms before forced execution as an integer
- * @param {Function} [options.onError] - Error handler for sync errors and async
- *   rejections. Without this, errors propagate as if `fn` were called directly.
- * @returns {DebouncedFunction} Debounced function (void return) with
- *   cancel() and flush() methods
+ * The wrapper is fire-and-forget: it returns `void`, as does `flush()`.
+ * Return values of `fn` are discarded. To observe failures, pass `onError`.
  *
- * @throws {TypeError} If delay is not a non-negative integer
- * @throws {TypeError} If maxWait is not a non-negative integer
- * @throws {TypeError} If maxWait < delay
+ * @template TArgs - Tuple of the wrapped function's argument types.
+ * @template TReturn - Return type of the wrapped function (discarded by the wrapper).
+ * @param fn - Function to debounce (sync or async). `this` is not forwarded;
+ *   pass a bound function if `fn` relies on `this`.
+ * @param options - Configuration options.
+ * @param options.immediate - Fire on the leading edge. Also fires on the
+ *   trailing edge if called again during the cooldown. There is no
+ *   leading-only mode. Defaults to `false` (trailing-edge only).
+ * @param options.delay - Delay in ms after the last call. Must be a
+ *   non-negative integer. Defaults to `1000`.
+ * @param options.maxWait - Max time in ms from the first call in a burst
+ *   before forced execution. Must be a non-negative integer `>= delay`.
+ *   Disabled by default.
+ * @param options.onError - Error handler for sync errors and async
+ *   rejections. Without this, sync errors throw from the timer callback
+ *   (uncaught) and async rejections are left unhandled (Node
+ *   `unhandledRejection`), because the wrapper returns `void` and cannot
+ *   propagate them to the caller.
+ * @returns Debounced function (void return) with `cancel()` and `flush()` methods.
+ *
+ * @throws {TypeError} If delay is not a non-negative integer.
+ * @throws {TypeError} If maxWait is not a non-negative integer.
+ * @throws {TypeError} If maxWait is less than delay.
  *
  * @example
- * // Async function
- * const save = debounce(async (data) => {
+ * // Async function: runs ~500ms after the last call, at most every 5s
+ * // during continuous calls. Failures are reported via `onError`.
+ * const save = debounce(async (data: string) => {
  *     await api.save(data);
  * }, {
  *     delay: 500,
@@ -127,12 +173,12 @@ export interface DebouncedFunction<TArgs extends readonly unknown[]> {
  *     onError: (err) => console.error('Save failed:', err),
  * });
  *
- * // Sync function
- * const updateUI = debounce((value) => {
+ * // Sync function: updates the UI ~300ms after the last call.
+ * const updateUI = debounce((value: string) => {
  *     element.textContent = value;
  * }, { delay: 300 });
  *
- * input.addEventListener('input', (e) => save(e.target.value));
+ * input.addEventListener('input', (e: Event) => save((e.target as HTMLInputElement).value));
  *
  * // Cleanup on unmount:
  * save.cancel();

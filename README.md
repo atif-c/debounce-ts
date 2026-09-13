@@ -9,10 +9,10 @@ A small TypeScript debounce utility for both sync and async functions. Supports 
 ## Features
 
 - Debounces both sync and async functions
-- Leading-edge (`immediate`) and trailing-edge execution
+- Leading-edge (`immediate`) and trailing-edge execution (`immediate: true` means leading + trailing when re-triggered; there is no leading-only mode)
 - Maximum wait enforcement to guarantee execution during continuous calls
-- Error handling via `onError` callback
-- `.cancel()` and `.flush()` methods on the returned function
+- Error handling via `onError` callback (recommended, since the wrapper returns `void` and cannot throw to the caller)
+- `.cancel()` and `.flush()` methods on the returned function (both safe to call when nothing is pending)
 - Zero dependencies, fully typed
 
 ## Installation
@@ -92,16 +92,17 @@ discardButton.addEventListener('click', () => autoSave.cancel());
 
 ### Error handling
 
-By default, errors propagate as if `fn` were called directly. Use `onError` to handle them explicitly:
+The debounced wrapper returns `void` (fire-and-forget), so return values are discarded and failures cannot be `await`ed or caught by the caller. Use `onError` to handle them explicitly:
 
 ```typescript
 import { debounce } from 'debounce-ts';
 
 const save = debounce(
-	async data => {
+	async (data: string) => {
 		throw new Error('Network error');
 	},
 	{
+		delay: 500,
 		onError: error => {
 			console.error('Save failed:', error);
 		}
@@ -109,53 +110,74 @@ const save = debounce(
 );
 ```
 
-Without `onError`, sync errors throw naturally and async rejections trigger Node's `unhandledRejection` event.
+Without `onError`, sync errors throw from the timer callback (uncaught) and async rejections are left unhandled (Node's `unhandledRejection` event). Leading-edge (`immediate: true`) calls throw synchronously to the caller instead.
 
 ## API
 
-### `debounce<T>(fn: T, options?: DebounceOptions): DebouncedFunction<T>`
+### `debounce<TArgs extends readonly unknown[], TReturn>(fn: (...args: TArgs) => TReturn | Promise<TReturn>, options?: DebounceOptions): DebouncedFunction<TArgs>`
 
-Creates a debounced version of the provided function.
+Creates a debounced version of the provided function. Only the latest arguments are used when `fn` eventually runs.
 
 **Parameters:**
 
-- `fn` — Function to debounce (sync or async)
+- `fn` — Function to debounce (sync or async). `this` is not forwarded; pass a bound function (e.g. `obj.method.bind(obj)`) if `fn` relies on `this`.
 - `options` — Configuration object (optional):
 
-| Option      | Type                       | Default | Description                                                                  |
-| ----------- | -------------------------- | ------- | ---------------------------------------------------------------------------- |
-| `delay`     | `number`                   | `1000`  | Wait time in ms after last call                                              |
-| `immediate` | `boolean`                  | `false` | Fire on leading edge. Also fires trailing if new args arrive during cooldown |
-| `maxWait`   | `number`                   | —       | Max time in ms before forced execution                                       |
-| `onError`   | `(error: unknown) => void` | —       | Error handler for sync errors and async rejections                           |
+| Option      | Type                       | Default | Description                                                                                                  |
+| ----------- | -------------------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| `delay`     | `number`                   | `1000`  | Wait time in ms after last call. Must be a non-negative integer                                              |
+| `immediate` | `boolean`                  | `false` | Fire on leading edge. Also fires on trailing edge if called again during cooldown. No leading-only mode      |
+| `maxWait`   | `number`                   | —       | Max time in ms from first call in a burst before forced execution. Must be a non-negative integer `>= delay` |
+| `onError`   | `(error: unknown) => void` | —       | Error handler for sync errors and async rejections (recommended, since the wrapper returns `void`)           |
 
-**Returns:** `DebouncedFunction` — Debounced wrapper (void return, fire-and-forget).
+**Returns:** `DebouncedFunction` — Debounced wrapper. Always returns `void`; `fn`'s return value is discarded.
 
 **Methods on returned function:**
 
-- `.cancel()` — Cancel all pending invocations and clear timers
-- `.flush()` — Immediately execute pending invocation (if any) and clear timers
+- `.cancel()` — Cancel any pending invocation and clear timers. Safe to call when nothing is pending
+- `.flush()` — Immediately execute the pending invocation (if any) with the latest arguments and clear timers. No-op when nothing is pending. Returns `void`, not `fn`'s result
 
 **Throws:**
 
-- `TypeError` if `delay` is not a non-negative number
-- `TypeError` if `maxWait` is not a non-negative number
+- `TypeError` if `delay` is not a non-negative integer (`NaN`/`Infinity`/floats rejected)
+- `TypeError` if `maxWait` is not a non-negative integer
 - `TypeError` if `maxWait` < `delay`
 
 ### TypeScript types
 
-The `DebouncedFunction` interface is exported for use in your code:
+Type arguments are inferred — you rarely need to annotate:
+
+```typescript
+import { debounce } from 'debounce-ts';
+
+const save = debounce(
+	async (text: string) => {
+		await api.save(text);
+	},
+	{ delay: 500 }
+);
+// `save` is `(text: string) => void` with `.cancel()` / `.flush()`
+```
+
+The `DebouncedFunction` interface is exported for explicit annotations. Its type parameter is the arguments tuple:
 
 ```typescript
 import { debounce, DebouncedFunction } from 'debounce-ts';
 
-const save: DebouncedFunction<[string]> = debounce(
+const save: DebouncedFunction<[text: string]> = debounce(
 	async (text: string) => {
 		await api.save(text);
 	},
 	{ delay: 500 }
 );
 ```
+
+## Behavior notes
+
+- Trailing-edge only by default (`immediate: false`). `immediate: true` means leading + trailing (when re-triggered); unlike `lodash.debounce`, there is no leading-only (`trailing: false`) mode.
+- Only the latest arguments are used when `fn` eventually runs; intermediate calls are dropped.
+- The wrapper and `flush()` always return `void` — `fn`'s return value is discarded and cannot be awaited.
+- Pending timers keep the Node.js event loop alive until they fire, `cancel()`, or `flush()` is called. Call `cancel()` for cleanup on unmount.
 
 ## License
 
