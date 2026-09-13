@@ -931,6 +931,165 @@ describe('debounce-ts', () => {
 		});
 	});
 
+	describe('this binding', () => {
+		it('should forward caller this on trailing edge', async () => {
+			const ctx = { id: 1 };
+			const mockFn = vi.fn(function (this: unknown) {});
+			const debounced = debounce(mockFn, { delay });
+
+			debounced.call(ctx);
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn.mock.contexts[0]).toBe(ctx);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+		});
+
+		it('should forward caller this on trailing edge with onError', async () => {
+			const ctx = { id: 1 };
+			const onError = vi.fn();
+			const mockFn = vi.fn(function (this: unknown) {});
+			const debounced = debounce(mockFn, { delay, onError });
+
+			debounced.call(ctx);
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn.mock.contexts[0]).toBe(ctx);
+			expect(onError).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(onError).toHaveBeenCalledTimes(0);
+		});
+
+		it('should use the latest receiver when called multiple times', async () => {
+			const ctx1 = { id: 1 };
+			const ctx2 = { id: 2 };
+			const mockFn = vi.fn(function (this: unknown, _arg: string) {});
+			const debounced = debounce(mockFn, { delay });
+
+			debounced.call(ctx1, 'first');
+			debounced.call(ctx2, 'second');
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1, 'second');
+			expect(mockFn.mock.contexts[0]).toBe(ctx2);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+		});
+
+		it('should forward this on leading edge with immediate', async () => {
+			const ctx = { id: 1 };
+			const mockFn = vi.fn(function (this: unknown, _arg: string) {});
+			const debounced = debounce(mockFn, { delay, immediate: true });
+
+			debounced.call(ctx, 'first');
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1, 'first');
+			expect(mockFn.mock.contexts[0]).toBe(ctx);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+		});
+
+		it('should use latest this for trailing call after leading call', async () => {
+			const ctx1 = { id: 1 };
+			const ctx2 = { id: 2 };
+			const mockFn = vi.fn(function (this: unknown, _arg: string) {});
+			const debounced = debounce(mockFn, { delay, immediate: true });
+
+			debounced.call(ctx1, 'first');
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1, 'first');
+			expect(mockFn.mock.contexts[0]).toBe(ctx1);
+
+			debounced.call(ctx2, 'second');
+			expect(mockFn).toHaveBeenCalledTimes(1);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(2);
+			expect(mockFn).toHaveBeenNthCalledWith(2, 'second');
+			expect(mockFn.mock.contexts[1]).toBe(ctx2);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(2);
+		});
+
+		it('should forward this on flush', async () => {
+			const ctx = { id: 1 };
+			const mockFn = vi.fn(function (this: unknown, _arg: string) {});
+			const debounced = debounce(mockFn, { delay });
+
+			debounced.call(ctx, 'first');
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			debounced.flush();
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1, 'first');
+			expect(mockFn.mock.contexts[0]).toBe(ctx);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+		});
+
+		it('should not leak previous this after cancel', async () => {
+			const ctx1 = { id: 1 };
+			const ctx2 = { id: 2 };
+			const mockFn = vi.fn(function (this: unknown, _arg: string) {});
+			const debounced = debounce(mockFn, { delay });
+
+			debounced.call(ctx1, 'first');
+			debounced.cancel();
+
+			debounced.call(ctx2, 'second');
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1, 'second');
+			expect(mockFn.mock.contexts[0]).toBe(ctx2);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+		});
+
+		it('should forward this through maxWait', async () => {
+			const ctx1 = { id: 1 };
+			const ctx2 = { id: 2 };
+			const ctx3 = { id: 3 };
+			const mockFn = vi.fn(function (this: unknown, _arg: string) {});
+			const debounced = debounce(mockFn, { delay, maxWait: 200 });
+
+			debounced.call(ctx1, 'first');
+			await vi.advanceTimersByTimeAsync(90);
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			debounced.call(ctx2, 'second');
+			await vi.advanceTimersByTimeAsync(90);
+			expect(mockFn).toHaveBeenCalledTimes(0);
+
+			debounced.call(ctx3, 'third');
+			await vi.advanceTimersByTimeAsync(90);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1, 'third');
+			expect(mockFn.mock.contexts[0]).toBe(ctx3);
+
+			await vi.advanceTimersByTimeAsync(delay);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+		});
+	});
+
 	describe('argument handling', () => {
 		it('should handle no arguments', async () => {
 			const mockFn = vi.fn(async () => 'called');

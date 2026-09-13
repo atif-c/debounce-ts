@@ -120,7 +120,7 @@ Creates a debounced version of the provided function. Only the latest arguments 
 
 **Parameters:**
 
-- `fn` — Function to debounce (sync or async). `this` is not forwarded; pass a bound function (e.g. `obj.method.bind(obj)`) if `fn` relies on `this`.
+- `fn` — Function to debounce (sync or async). Called with the latest caller `this` (e.g. `debounced.call(ctx, ...)`).
 - `options` — Configuration object (optional):
 
 | Option      | Type                       | Default | Description                                                                                                  |

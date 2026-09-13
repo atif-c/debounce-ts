@@ -81,8 +81,8 @@ export interface DebounceOptions {
  * wrapped function's return value. Results (and errors, unless `onError`
  * is set) are not observable by the caller.
  *
- * Note: `this` is not forwarded to `fn`. Pass a bound function
- * (e.g. `debounce(obj.method.bind(obj), ...)`) if `fn` relies on `this`.
+ * Note: the caller `this` is forwarded to `fn`.
+ * The latest receiver is used when `fn` eventually runs.
  *
  * @template TArgs - Tuple of the wrapped function's argument types.
  */
@@ -139,8 +139,9 @@ export interface DebouncedFunction<TArgs extends readonly unknown[]> {
  *
  * @template TArgs - Tuple of the wrapped function's argument types.
  * @template TReturn - Return type of the wrapped function (discarded by the wrapper).
- * @param fn - Function to debounce (sync or async). `this` is not forwarded;
- *   pass a bound function if `fn` relies on `this`.
+ * @param fn - Function to debounce (sync or async). Called with the
+ *   latest caller `this` (e.g. `debounced.call(ctx, ...)` or a detached
+ *   method's receiver).
  * @param options - Configuration options.
  * @param options.immediate - Fire on the leading edge. Also fires on the
  *   trailing edge if called again during the cooldown. There is no
@@ -213,22 +214,25 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 	let maxTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	let pendingArgs: TArgs | null = null;
+	let lastThis: unknown = null;
 	let firstCallTime: number | null = null;
 
 	const invoke = () => {
 		if (!pendingArgs) return;
 		const args = pendingArgs;
+		const thisArg = lastThis;
 		pendingArgs = null;
+		lastThis = null;
 
 		if (!onError) {
 			// No error handling requested, call fn directly so errors propagate naturally
-			fn(...args);
+			Reflect.apply(fn, thisArg, args);
 			return;
 		}
 
 		// Wrap in try-catch to handle sync errors, then Promise.resolve() for async
 		try {
-			const result = fn(...args);
+			const result = Reflect.apply(fn, thisArg, args) as TReturn | Promise<TReturn>;
 			Promise.resolve(result).catch(onError);
 		} catch (error) {
 			onError(error);
@@ -260,7 +264,9 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 		}, remaining);
 	};
 
-	const debounced = ((...args: TArgs) => {
+	const debounced = function (this: unknown, ...args: TArgs): void {
+		// eslint-disable-next-line @typescript-eslint/no-this-alias -- capture receiver for deferred invoke()
+		lastThis = this;
 		pendingArgs = args;
 
 		if (firstCallTime === null) {
@@ -298,11 +304,12 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 		}
 
 		startMaxWaitTimer();
-	}) as DebouncedFunction<TArgs>;
+	} as DebouncedFunction<TArgs>;
 
 	debounced.cancel = () => {
 		clearTimers();
 		pendingArgs = null;
+		lastThis = null;
 		firstCallTime = null;
 	};
 
