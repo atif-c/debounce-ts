@@ -51,7 +51,7 @@
 		"eslint:check": "eslint .",
 		"eslint:fix": "eslint --fix .",
 		"format": "prettier --write . && eslint --fix .",
-		"prepublishOnly": "bun run build"
+		"prepublishOnly": "pnpm run build"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
