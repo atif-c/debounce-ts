@@ -816,6 +816,33 @@ describe('debounce-ts', () => {
 			expect(mockFn).toHaveBeenCalledTimes(1);
 			expect(mockFn).toHaveBeenNthCalledWith(1, 'third');
 		});
+
+		it('should reset maxWait window after flush', async () => {
+			const mockFn = vi.fn(async (_arg: string) => {});
+			const debounced = debounce(mockFn, { delay, maxWait: 200 });
+
+			debounced('first');
+			await vi.advanceTimersByTimeAsync(50);
+			debounced.flush();
+			expect(mockFn).toHaveBeenCalledTimes(1);
+			expect(mockFn).toHaveBeenNthCalledWith(1, 'first');
+
+			await vi.advanceTimersByTimeAsync(10);
+			debounced('second');
+
+			await vi.advanceTimersByTimeAsync(90);
+			debounced('third');
+
+			await vi.advanceTimersByTimeAsync(50);
+			expect(mockFn).toHaveBeenCalledTimes(1);
+
+			await vi.advanceTimersByTimeAsync(40);
+			debounced('fourth');
+
+			await vi.advanceTimersByTimeAsync(20);
+			expect(mockFn).toHaveBeenCalledTimes(2);
+			expect(mockFn).toHaveBeenNthCalledWith(2, 'fourth');
+		});
 	});
 
 	describe('synchronous functions', () => {

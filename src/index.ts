@@ -316,6 +316,7 @@ export const debounce = <TArgs extends readonly unknown[], TReturn>(
 	debounced.flush = () => {
 		clearTimers();
 		invoke();
+		firstCallTime = null;
 	};
 
 	return debounced;
